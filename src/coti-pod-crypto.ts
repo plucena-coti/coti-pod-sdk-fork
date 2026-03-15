@@ -8,7 +8,7 @@ import { decryptUint, decryptString } from "@coti-io/coti-sdk-typescript";
 import type { ctString } from "@coti-io/coti-sdk-typescript";
 
 const ENCRYPTION_SERVICE: Record<string, string> = {
-  testnet: "https://pod-encryption-service-testnet.coti.io",
+  testnet: "https://fullnode.testnet.coti.io/pod-encryption",
   mainnet: "https://pod-encryption-service-mainnet.coti.io",
 };
 
