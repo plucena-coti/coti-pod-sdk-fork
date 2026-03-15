@@ -29,6 +29,18 @@ Production documentation lives in `/docs`:
 - `/docs/contracts/02-contract-patterns-and-checklist.md`
 - `/docs/contracts/03-request-builder-and-remote-calls.md`
 
+MkDocs setup lives in `/docs`:
+
+- Config: `/docs/mkdocs.yml`
+- Dependencies: `/docs/requirements.txt`
+- Commands: `/docs/Makefile` (`make install`, `make serve`, `make build`)
+
+From repo root:
+
+- `npm run docs:install`
+- `npm run docs:serve`
+- `npm run docs:build`
+
 ## Current version
 
 `0.1.0`

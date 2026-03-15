@@ -20,7 +20,10 @@
   ],
   "scripts": {
     "build": "tsc",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "docs:install": "make -C docs install",
+    "docs:serve": "make -C docs serve",
+    "docs:build": "make -C docs build"
   },
   "keywords": [
     "coti",

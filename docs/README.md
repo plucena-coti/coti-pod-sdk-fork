@@ -51,3 +51,28 @@ Then read deep dives:
 - This SDK gives contracts and TypeScript utilities. It does not provide deployment scripts, indexers, or backend services.
 - PoD execution is asynchronous. Private operations do not return final plaintext synchronously in the same EVM call.
 - “Any EVM chain” requires a deployed, connected Inbox route to COTI-side execution.
+
+## Build docs with MkDocs
+
+From `/docs`:
+
+```bash
+make install
+make serve
+```
+
+Build static site:
+
+```bash
+make build
+```
+
+Output is generated at `/site`.
+
+From repository root, you can also run:
+
+```bash
+npm run docs:install
+npm run docs:serve
+npm run docs:build
+```
