@@ -59,13 +59,14 @@ export class CotiPodCrypto {
     dataType: DataType = DataType.Uint64
   ): Promise<EncryptedValue> {
     const baseUrl = ENCRYPTION_SERVICE[network] ?? network;
-    const url = `${baseUrl.replace(/\/$/, "")}/encrypt`;
+    const url = `${baseUrl.replace(/\/$/, "")}/buildEncryptedValue`;
     const body = { type: toServiceType(dataType), value };
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
+    console.log('encrypt',url, res);
     if (!res.ok) {
       const text = await res.text();
       throw new Error(`Encryption failed (${res.status}): ${text}`);
