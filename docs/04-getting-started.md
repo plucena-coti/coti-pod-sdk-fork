@@ -93,16 +93,10 @@ import { CotiPodCrypto, DataType } from "@coti/pod-sdk";
 const encA = await CotiPodCrypto.encrypt("10", "testnet", DataType.Uint64);
 const encB = await CotiPodCrypto.encrypt("20", "testnet", DataType.Uint64);
 
-if (Array.isArray((encA as any).signature) || Array.isArray((encB as any).signature)) {
-  throw new Error("unexpected signature shape for Uint64");
-}
-
 // await contract.compare(encA, encB)
 // later read ctBool and decrypt with user's AES key:
 const plain = CotiPodCrypto.decrypt("0x...", accountAesKey, DataType.Bool);
 ```
-
-If your encryption service returns signatures in a non-hex encoding, normalize them to a bytes-like value accepted by your ethers client before contract submission.
 
 ## First production checklist
 

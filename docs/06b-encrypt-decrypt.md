@@ -2,6 +2,8 @@
 
 This page documents `CotiPodCrypto` from `/src/coti-pod-crypto.ts`.
 
+Encryption calls the **PoD encryption service** (`buildEncryptedValue`); no wallet required.
+
 ## API
 
 ```typescript
@@ -9,25 +11,21 @@ CotiPodCrypto.encrypt(value, networkOrUrl, dataType?)
 CotiPodCrypto.decrypt(ciphertext, aesKey, dataType?)
 ```
 
+## Encrypt parameters
+
+- **value** – Plaintext (numeric string, `"true"`/`"false"`, or string for `String` type).
+- **networkOrUrl** – `"testnet"`, `"mainnet"`, or a full service base URL.
+- **dataType** – Optional; defaults to `Uint64`.
+
 ## Supported `DataType`
 
-- `Bool`
-- `Uint8`
-- `Uint16`
-- `Uint32`
-- `Uint64`
-- `Uint128`
-- `Uint256`
-- `String`
+- `Bool`, `Uint8`, `Uint16`, `Uint32`, `Uint64`, `Uint128`, `Uint256`, `String`
 
 ## Network resolution
 
-Built-in aliases:
-
-- `testnet` -> `https://pod-encryption-service-testnet.coti.io`
-- `mainnet` -> `https://pod-encryption-service-mainnet.coti.io`
-
-You can also pass a full custom base URL.
+- `testnet` → `https://fullnode.testnet.coti.io/pod-encryption`
+- `mainnet` → `https://pod-encryption-service-mainnet.coti.io`
+- Or pass a full custom base URL.
 
 ## Return shapes from `encrypt`
 
@@ -40,8 +38,6 @@ You can also pass a full custom base URL.
 import { CotiPodCrypto, DataType } from "@coti/pod-sdk";
 
 const enc = await CotiPodCrypto.encrypt("42", "testnet", DataType.Uint64);
-if (Array.isArray((enc as any).signature)) throw new Error("expected scalar signature");
-
 const itAmount = {
   ciphertext: BigInt((enc as { ciphertext: string }).ciphertext),
   signature: (enc as { signature: string }).signature,
@@ -49,8 +45,6 @@ const itAmount = {
 
 // await contract.somePrivateMethod(itAmount)
 ```
-
-If the returned signature is not already a hex bytes string, convert/normalize it to the bytes format your contract call library expects.
 
 ## Example: decrypt callback output
 
@@ -69,8 +63,8 @@ const text = CotiPodCrypto.decrypt({ value: ["123", "456"] }, accountAesKey, Dat
 
 `encrypt(...)` throws when:
 
-- HTTP response is non-2xx,
-- required fields are missing in response payload.
+- The service returns a non-2xx response,
+- Required fields are missing in the response.
 
 `decrypt(...)` throws when:
 

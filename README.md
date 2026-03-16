@@ -4,9 +4,19 @@ SDK for building privacy dApps on EVM with COTI Privacy on Demand (PoD): Solidit
 
 ## Install
 
+From npm (when published):
+
 ```bash
 npm install @coti/pod-sdk
 ```
+
+From GitHub:
+
+```bash
+npm install github:cotitech-io/coti-pod-sdk
+```
+
+The package builds automatically on install (`prepare` script).
 
 ## Documentation
 

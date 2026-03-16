@@ -26,7 +26,7 @@ export enum DataType {
 
 /** Result of encrypting a scalar (uint/bool) for use in PoD contracts. */
 export type EncryptedScalar = {
-  ciphertext: string;
+  ciphertext: string | bigint;
   signature: string;
 };
 
@@ -59,17 +59,16 @@ export class CotiPodCrypto {
     dataType: DataType = DataType.Uint64
   ): Promise<EncryptedValue> {
     const baseUrl = ENCRYPTION_SERVICE[network] ?? network;
-    const url = `${baseUrl.replace(/\/$/, "")}/buildEncryptedValue`;
-    const body = { type: toServiceType(dataType), value };
+    const url = `${baseUrl.replace(/\/$/, "")}/buildEncryptedInputs`;
+    const body = { dataType: toServiceType(dataType), value };
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-    console.log('encrypt',url, res);
     if (!res.ok) {
       const text = await res.text();
-      throw new Error(`Encryption failed (${res.status}): ${text}`);
+      throw new Error(`Encryption service error: ${text}`);
     }
     const data = (await res.json()) as Record<string, unknown>;
 
@@ -77,17 +76,20 @@ export class CotiPodCrypto {
       const ct = data.ciphertext as { value?: string[] } | undefined;
       const sig = data.signature as string[] | undefined;
       if (!ct?.value || !Array.isArray(sig)) {
-        throw new Error("Encryption response for string missing ciphertext.value or signature array");
+        throw new Error(
+          "Encryption response for string missing ciphertext.value or signature array"
+        );
       }
       return { ciphertext: { value: ct.value.map(String) }, signature: sig };
     }
 
-    const ciphertext = (data.ciphertext ?? (data as { cipherText?: string }).cipherText) as string | undefined;
+    const ciphertext = (data.ciphertext ??
+      (data as { cipherText?: string }).cipherText) as string | bigint | undefined;
     const signature = data.signature as string | undefined;
     if (ciphertext == null || signature == null) {
       throw new Error("Encryption response missing ciphertext or signature");
     }
-    return { ciphertext: String(ciphertext), signature: String(signature) };
+    return { ciphertext, signature: String(signature) };
   }
 
   /**
