@@ -15,9 +15,9 @@ Reference examples are under `/contracts/examples`.
 
 Key ideas:
 
-- Extend `MpcLib`.
+- Extend `PodMpcLib`.
 - Accept `itUint64` inputs.
-- Call `MpcLib.add(...)`.
+- Call `PodMpcLib.add(...)`.
 - Decode callback payload as `ctUint64`.
 
 Use this first if you want the smallest working async private flow.
@@ -42,7 +42,7 @@ Key ideas:
 - COTI side returns tuple payload via `inbox.respond(abi.encode(...))`.
 - EVM callback decodes tuple and stores encrypted balances.
 
-Use this when `MpcLib` does not cover your operation and you need a custom COTI contract.
+Use this when `PodMpcLib` does not cover your operation and you need a custom COTI contract.
 
 ## Production note
 

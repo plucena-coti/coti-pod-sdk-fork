@@ -4,9 +4,9 @@ Use this checklist before deploying a production privacy contract.
 
 ## Recommended contract shape
 
-1. Inherit from `MpcLib` (or `InboxUser` for custom mode).
+1. Inherit from `PodMpcLib` (or `InboxUser` for custom mode).
 2. Accept private values as `it*` on EVM entrypoints.
-3. Submit request via `MpcLib` or `inbox.sendTwoWayMessage(...)`.
+3. Submit request via `PodMpcLib` or `inbox.sendTwoWayMessage(...)`.
 4. Store `requestId` correlation state.
 5. Implement callback and error callback with `onlyInbox`.
 6. Decode callback into `ct*` and persist.

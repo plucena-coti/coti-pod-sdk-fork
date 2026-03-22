@@ -9,7 +9,7 @@ Use this playbook to convert synchronous non-private Solidity logic into PoD asy
 Choose one pattern per operation:
 
 1. Library-backed pattern:
-   - Use when operation is available in shared executor (`MpcLib` methods such as `add`, `gt`).
+   - Use when operation is available in shared executor (`PodMpcLib` methods such as `add`, `gt`).
    - Implement only EVM-side request + callback contract.
 
 2. Custom COTI pattern:
@@ -42,7 +42,7 @@ event PrivateOpRequested(bytes32 indexed requestId, address indexed requester);
 event PrivateOpCompleted(bytes32 indexed requestId);
 
 function privateOp(itUint64 calldata a, itUint64 calldata b) external {
-    bytes32 requestId = /* call MpcLib.* or inbox.sendTwoWayMessage(...) */;
+    bytes32 requestId = /* call PodMpcLib.* or inbox.sendTwoWayMessage(...) */;
     _requestOwner[requestId] = msg.sender;
     emit PrivateOpRequested(requestId, msg.sender);
 }
@@ -85,7 +85,7 @@ function executePrivate(/* args */) external onlyInbox {
   - EVM: `contracts/examples/perc20/PErc20.sol`
   - COTI: `contracts/examples/perc20/PErc20Coti.sol`
 - Shared library internals:
-  - `contracts/mpc/MpcLib.sol`
+  - `contracts/mpc/PodMpcLib.sol`
 
 ## Review Criteria
 

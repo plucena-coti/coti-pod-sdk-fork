@@ -4,17 +4,17 @@ pragma solidity ^0.8.26;
 import "../utils/mpc/MpcCore.sol";
 
 import "../IInbox.sol";
-import "./MpcUser.sol";
+import "./PodMpcUser.sol";
 import "../mpccodec/MpcAbiCodec.sol";
 import "./coti-side/ICommonMpcMethods.sol";
 
 /**
- * @title MpcLib
+ * @title PodMpcLib
  * @notice This is the library contract for the MPC methods. It is used to send two-way messages
  *         to the MpcExecutor contract on the COTI side.
  *         Extend this contrct if you need these Mpc library functions.
  */
-abstract contract MpcLib is MpcUser {
+abstract contract PodMpcLib is PodMpcUser {
     using MpcAbiCodec for MpcAbiCodec.MpcMethodCallContext;
 
     /// @notice Send an MPC add request to the COTI executor.

@@ -16,7 +16,7 @@ npm install @coti/pod-sdk
 
 ```solidity
 import "@coti/pod-sdk/contracts/IInbox.sol";
-import "@coti/pod-sdk/contracts/mpc/MpcLib.sol";
+import "@coti/pod-sdk/contracts/mpc/PodMpcLib.sol";
 import "@coti/pod-sdk/contracts/mpccodec/MpcAbiCodec.sol";
 import "@coti/pod-sdk/contracts/utils/mpc/MpcCore.sol";
 ```
@@ -33,10 +33,10 @@ import { CotiPodCrypto, DataType } from "@coti/pod-sdk";
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
-import "@coti/pod-sdk/contracts/mpc/MpcLib.sol";
+import "@coti/pod-sdk/contracts/mpc/PodMpcLib.sol";
 import "@coti/pod-sdk/contracts/utils/mpc/MpcCore.sol";
 
-contract PrivateCompare is MpcLib {
+contract PrivateCompare is PodMpcLib {
     address public owner;
 
     mapping(bytes32 => ctBool) public resultByRequest;

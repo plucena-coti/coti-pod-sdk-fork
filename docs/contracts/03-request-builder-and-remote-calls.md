@@ -63,7 +63,7 @@ IInbox(inbox).sendTwoWayMessage(
     mpcExecutorAddress,
     methodCall,
     PErc20.updateBalanceCallback.selector,
-    MpcLib.onDefaultMpcError.selector
+    PodMpcLib.onDefaultMpcError.selector
 );
 ```
 

@@ -53,7 +53,7 @@ sequenceDiagram
 ## What this SDK provides
 
 - Inbox contracts/interfaces for request-response flow.
-- `MpcLib` helpers for common private operations (`add`, `gt`).
+- `PodMpcLib` helpers for common private operations (`add`, `gt`).
 - `MpcAbiCodec` argument typing and payload re-encoding logic.
 - `MpcCore` type declarations and conversion operations.
 - `CotiPodCrypto` TypeScript helper for encrypt/decrypt UX.

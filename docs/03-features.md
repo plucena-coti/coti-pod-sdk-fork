@@ -6,7 +6,7 @@
 |---|---|---|
 | Async cross-domain request/response | `/contracts/IInbox.sol` | Private operations complete through callbacks, not sync return values |
 | Callback authorization | `/contracts/InboxUser.sol` (`onlyInbox`) | Prevents arbitrary callers from injecting fake callback data |
-| Built-in common private methods | `/contracts/mpc/MpcLib.sol` (`add`, `gt`) | Fast path for common operations without custom COTI contract |
+| Built-in common private methods | `/contracts/mpc/PodMpcLib.sol` (`add`, `gt`) | Fast path for common operations without custom COTI contract |
 | Configurable target executor/chain | `/contracts/mpc/MpcUser.sol` | Lets app point to desired COTI executor and chain ID (integrator must add access control) |
 | Typed argument encoding | `/contracts/mpccodec/MpcAbiCodec.sol` | Keeps argument schemas deterministic and ABI-aligned |
 | Type declarations and conversions | `/contracts/utils/mpc/MpcCore.sol` | Defines `it*`, `ct*`, `gt*` and conversion operations |

@@ -1,8 +1,8 @@
 # Multi-party Computing library (MpCLib)
 
-Source: `/contracts/mpc/MpcLib.sol`
+Source: `/contracts/mpc/PodMpcLib.sol`
 
-`MpcLib` is the EVM-side helper for built-in COTI private methods.
+`PodMpcLib` is the EVM-side helper for built-in COTI private methods.
 
 ## What it does
 
@@ -13,7 +13,7 @@ Source: `/contracts/mpc/MpcLib.sol`
 
 Important mapping behavior:
 
-- EVM calls `MpcLib` methods with `it*` input arguments.
+- EVM calls `PodMpcLib` methods with `it*` input arguments.
 - COTI-side common methods are defined with `gt*` parameters (`ICommonMpcMethods`).
 - request re-encoding/validation converts `it*` payloads into `gt*` ABI arguments before COTI invocation.
 
@@ -40,7 +40,7 @@ Production implication:
 ## Integration example
 
 ```solidity
-contract MyContract is MpcLib {
+contract MyContract is PodMpcLib {
     address public owner;
 
     modifier onlyOwner() { require(msg.sender == owner, "only owner"); _; }
@@ -73,7 +73,7 @@ contract MyContract is MpcLib {
 }
 ```
 
-## When to move beyond `MpcLib`
+## When to move beyond `PodMpcLib`
 
 Use custom EVM + COTI contracts when:
 

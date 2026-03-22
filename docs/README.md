@@ -7,7 +7,7 @@ Everything here is grounded in source files in this repository:
 - `/contracts/IInbox.sol`
 - `/contracts/InboxUser.sol`
 - `/contracts/mpc/MpcUser.sol`
-- `/contracts/mpc/MpcLib.sol`
+- `/contracts/mpc/PodMpcLib.sol`
 - `/contracts/mpccodec/MpcAbiCodec.sol`
 - `/contracts/utils/mpc/MpcCore.sol`
 - `/src/coti-pod-crypto.ts`

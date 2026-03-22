@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.26;
 
-import { MpcLib } from "../../mpc/MpcLib.sol";
+import { PodLib } from "../../mpc/PodLib.sol";
+import { PodLibBase } from "../../mpc/PodLibBase.sol";
 import "../../mpccodec/MpcAbiCodec.sol";
 import "../../IInbox.sol";
-import "../../utils/mpc/MpcCore.sol";
+import "@coti-io/coti-contracts/contracts/utils/mpc/MpcCore.sol";
 
-contract Millionaire is MpcLib {
+contract Millionaire is PodLib {
     event RevealResult(bytes32 indexed requestId, ctBool result);
 
     constructor(address _inbox) {
@@ -30,18 +31,18 @@ contract Millionaire is MpcLib {
         require(isWealthRegistered(b), "B's wealth is not registered");
         itUint64 memory wealthA = encryptedWealthOf[a];
         itUint64 memory wealthB = encryptedWealthOf[b];
-        revealRequests[a][b] = gt(
+        revealRequests[a][b] = gt64(
             wealthA,
             wealthB,
             a,
             this.revealCallback.selector,
-            this.onDefaultMpcError.selector);
-        revealRequests[b][a] = gt(
+            PodLibBase.onDefaultMpcError.selector);
+        revealRequests[b][a] = gt64(
             wealthB,
             wealthA,
             b,
             this.revealCallback.selector,
-            this.onDefaultMpcError.selector);
+            PodLibBase.onDefaultMpcError.selector);
     }
 
     function revealMyWealthGtThan(address b) external view returns (bool,ctBool) {

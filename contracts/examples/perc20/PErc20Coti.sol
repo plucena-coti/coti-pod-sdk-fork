@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "../../InboxUser.sol";
-import "../../utils/mpc/MpcCore.sol";
+import "@coti-io/coti-contracts/contracts/utils/mpc/MpcCore.sol";
 
 contract PErc20Coti is InboxUser {
     uint64 TOTAL_SUPPLY = 1_000_000;

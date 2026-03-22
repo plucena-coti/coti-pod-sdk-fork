@@ -7,13 +7,13 @@ description: Build new PoD (privacy-on-demand) applications and migrate existing
 
 ## Overview
 
-Implement or refactor Solidity contracts into PoD architecture with correct encrypted type usage and async request handling. Prefer existing `MpcLib.sol`/`MpcExecutor.sol` flows when possible; implement custom COTI-side privacy logic only when library coverage is insufficient.
+Implement or refactor Solidity contracts into PoD architecture with correct encrypted type usage and async request handling. Prefer existing `PodMpcLib.sol`/`MpcExecutor.sol` flows when possible; implement custom COTI-side privacy logic only when library coverage is insufficient.
 
 ## Quick Start Workflow
 
 1. Classify each variable and function boundary using `it*`, `ct*`, `gt*`, or public types.
 2. Choose integration mode:
-   - Use library mode (`MpcLib.sol` + existing COTI executor methods) for supported operations.
+   - Use library mode (`PodMpcLib.sol` + existing COTI executor methods) for supported operations.
    - Use custom mode (new EVM + COTI contracts) for unsupported privacy business logic.
 3. Convert synchronous flows into async request/response:
    - Create request on EVM side via Inbox.
@@ -33,7 +33,7 @@ Read `references/type-system-and-roles.md` when mapping legacy state/parameters 
 
 ## Implement EVM-Side Contract Patterns
 
-- Extend `MpcLib` when using built-in privacy methods (`add`, `gt`, future shared methods).
+- Extend `PodMpcLib` when using built-in privacy methods (`add`, `gt`, future shared methods).
 - Build method calls via `MpcAbiCodec` and call Inbox:
   - `sendTwoWayMessage` for request+callback RPC-like flows.
   - `sendOneWayMessage` for fire-and-forget cross-chain messages.

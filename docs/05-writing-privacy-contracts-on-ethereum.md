@@ -17,7 +17,7 @@ Reference: `/docs/contracts/01-it-ct-gt-data-types.md`.
 
 ## Library mode
 
-Use `MpcLib` when your operation is covered:
+Use `PodMpcLib` when your operation is covered:
 
 - `add`
 - `gt`
@@ -26,7 +26,7 @@ You implement EVM request/callback logic only.
 
 ## Custom mode
 
-Use `MpcAbiCodec` + a COTI-side contract when operation is not covered by `MpcLib`.
+Use `MpcAbiCodec` + a COTI-side contract when operation is not covered by `PodMpcLib`.
 
 You must define and maintain:
 

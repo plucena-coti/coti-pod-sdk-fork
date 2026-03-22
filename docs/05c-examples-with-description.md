@@ -8,8 +8,8 @@ Path: `/contracts/examples/MpcAdder.sol`
 
 What it demonstrates:
 
-- Minimal `MpcLib` usage.
-- Request submission with `MpcLib.add(...)`.
+- Minimal `PodMpcLib` usage.
+- Request submission with `PodMpcLib.add(...)`.
 - Callback decode and encrypted result storage (`ctUint64`).
 
 What to add in production:
