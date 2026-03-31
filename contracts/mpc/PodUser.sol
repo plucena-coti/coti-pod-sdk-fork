@@ -1,25 +1,32 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.19;
+
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "../IInbox.sol";
 import "../InboxUser.sol";
 
-/**
- * @title PodUser
- * @notice Base for POD contracts that talk to the inbox: configure the COTI MPC executor
- *         and send two-way messages to MpcExecutor on the COTI side.
- */
-abstract contract PodUser is InboxUser {
-    event ErrorRemoteCall(bytes32 requestId, uint code, string message);
+/// @title PodUser
+/// @notice POD base: COTI chain ID, MPC executor address, and owner-gated {configure}.
+abstract contract PodUser is InboxUser, Ownable {
+    event ErrorRemoteCall(bytes32 requestId, uint256 code, string message);
 
     address internal mpcExecutorAddress = 0x0000000000000000000000000000000000000000;
     uint256 internal cotiChainId = 2632500;
 
-    /// @notice Configure the COTI MPC executor address and chain ID.
-    /// @param _mpcExecutorAddress The MPC executor contract address.
-    /// @param _cotiChainId The COTI chain ID.
-    function configureCoti(address _mpcExecutorAddress, uint256 _cotiChainId) public virtual {
+    constructor(address initialOwner) Ownable(initialOwner) {}
+
+    /// @dev Internal COTI routing; use {configure} from outside this contract.
+    function configureCoti(address _mpcExecutorAddress, uint256 _cotiChainId) internal virtual {
         mpcExecutorAddress = _mpcExecutorAddress;
         cotiChainId = _cotiChainId;
+    }
+
+    /// @notice Owner-only: set inbox when `inbox_ != address(0)`; always updates COTI executor and chain id.
+    function configure(address inbox_, address mpcExecutor_, uint256 cotiChainId_) external onlyOwner {
+        if (inbox_ != address(0)) {
+            setInbox(inbox_);
+        }
+        configureCoti(mpcExecutor_, cotiChainId_);
     }
 }
