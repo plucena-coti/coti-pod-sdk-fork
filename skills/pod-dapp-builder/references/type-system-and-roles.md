@@ -10,19 +10,19 @@ Use this reference to map data across client, EVM, and COTI boundaries without l
   - Treat as encrypted + signed user input.
   - Accept on EVM-facing entrypoints.
   - Forward to COTI/private execution entrypoints.
-  - Example: `itUint64`, `itUint256`.
+  - Common examples: `itBool`, `itUint64`, `itUint128`, `itUint256`.
 
 - `ct*` types:
   - Treat as encrypted output for a specific user (user AES key context).
   - Store/return on EVM side when user-readable private results are required.
   - Use for callback payloads consumed by frontends/wallet flows.
-  - Example: `ctUint64`, `ctBool`.
+  - Common examples: `ctBool`, `ctUint64`, `ctUint128`, `ctUint256`.
 
 - `gt*` types:
   - Treat as COTI-only internal private compute values.
   - Use only in COTI-side smart contracts and MPC core logic.
   - Do not expose directly on EVM/public interfaces.
-  - Example: `gtUint64`, `gtUint256`.
+  - Common examples: `gtBool`, `gtUint64`, `gtUint128`, `gtUint256`.
 
 - Public Solidity types:
   - Keep non-private metadata/control fields public (`address`, `uint`, `bytes32`, enums).
@@ -35,6 +35,15 @@ Use this reference to map data across client, EVM, and COTI boundaries without l
 3. Perform private operations in COTI context with `gt*`.
 4. Convert COTI results to `ct*` before responding to EVM.
 5. Decode callback payloads into `ct*`/public fields and persist them.
+
+## Width And Operation Coverage
+
+- `PodLib` composes width-specific helpers:
+  - `PodLib64` for 64-bit operations.
+  - `PodLib128` for 128-bit operations.
+  - `PodLib256` for 256-bit operations.
+- Operations include arithmetic, comparisons, bitwise, mux, shifts, and randomness dispatch methods.
+- Keep callback decode types aligned with the selected operation width.
 
 ## COTI Conversion Patterns
 

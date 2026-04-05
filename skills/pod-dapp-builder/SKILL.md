@@ -1,26 +1,27 @@
 ---
 name: pod-dapp-builder
-description: Build new PoD (privacy-on-demand) applications and migrate existing non-private Solidity applications to COTI async privacy architecture. Use when working on contracts that must introduce `it*`, `ct*`, or `gt*` encrypted types; split logic between EVM and COTI sides; add Inbox one-way/two-way messaging; implement callback-based async flows; or refactor synchronous contract behavior into request/response state machines.
+description: Build new PoD (privacy-on-demand) applications and migrate existing non-private Solidity applications to COTI async privacy architecture. Use when working on contracts that must introduce `it*`, `ct*`, or `gt*` encrypted types; split logic between EVM and COTI sides; add Inbox one-way/two-way messaging; implement callback-based async flows; budget execution/callback fees; or refactor synchronous contract behavior into request/response state machines.
 ---
 
 # PoD dApp Builder
 
 ## Overview
 
-Implement or refactor Solidity contracts into PoD architecture with correct encrypted type usage and async request handling. Prefer existing `PodMpcLib.sol`/`MpcExecutor.sol` flows when possible; implement custom COTI-side privacy logic only when library coverage is insufficient.
+Implement or refactor Solidity contracts into PoD architecture with correct encrypted type usage, async request handling, and fee budgeting. Prefer existing `PodLib.sol` + COTI executor flows when possible; implement custom COTI-side privacy logic only when library coverage is insufficient.
 
 ## Quick Start Workflow
 
 1. Classify each variable and function boundary using `it*`, `ct*`, `gt*`, or public types.
 2. Choose integration mode:
-   - Use library mode (`PodMpcLib.sol` + existing COTI executor methods) for supported operations.
+   - Use library mode (`PodLib.sol`/`PodLibBase.sol` + existing COTI executor methods) for supported operations.
    - Use custom mode (new EVM + COTI contracts) for unsupported privacy business logic.
 3. Convert synchronous flows into async request/response:
    - Create request on EVM side via Inbox.
    - Persist request correlation state.
    - Handle callback/error callbacks via `onlyInbox`.
-4. Return user-readable encrypted outputs as `ct*`; keep in-contract/private computation as `gt*`.
-5. Verify callback decoding, request ID tracking, and failure paths.
+4. Budget fees for remote execution and callback (two-way) before dispatch.
+5. Return user-readable encrypted outputs as `ct*`; keep in-contract/private computation as `gt*`.
+6. Verify callback decoding, request ID tracking, failure paths, and fee sufficiency.
 
 ## Choose Type Semantics
 
@@ -33,9 +34,11 @@ Read `references/type-system-and-roles.md` when mapping legacy state/parameters 
 
 ## Implement EVM-Side Contract Patterns
 
-- Extend `PodMpcLib` when using built-in privacy methods (`add`, `gt`, future shared methods).
+- Extend `PodLib` when using built-in privacy methods.
+- Use `PodLibBase` for fee-aware helper behavior and default remote error surfacing.
+- Prefer width-specific operations already exposed by `PodLib` (`PodLib64`, `PodLib128`, `PodLib256`), including arithmetic, comparisons, bitwise ops, mux, shifts, and randomness flows.
 - Build method calls via `MpcAbiCodec` and call Inbox:
-  - `sendTwoWayMessage` for request+callback RPC-like flows.
+  - `sendTwoWayMessage(..., callbackFeeLocalWei)` for request+callback RPC-like flows.
   - `sendOneWayMessage` for fire-and-forget cross-chain messages.
 - Restrict callbacks with `onlyInbox`.
 - Decode callback payload into `ct*`/public outputs and persist them.
@@ -45,9 +48,28 @@ Read `references/type-system-and-roles.md` when mapping legacy state/parameters 
 - Handle remote failures with `onDefaultMpcError` or custom error selector.
 
 Use these repository examples as implementation anchors:
-- `contracts/examples/MpcAdder.sol`
+- `contracts/examples/it128/PodAdder128.sol`
+- `contracts/examples/it256/PodAdder256.sol`
+- `contracts/examples/pod/PodTest64.sol`
+- `contracts/examples/pod/PodTest128.sol`
+- `contracts/examples/pod/PodTest256.sol`
 - `contracts/examples/millionaire/Millionaire.sol`
 - `contracts/examples/perc20/PErc20.sol`
+
+## Fees (Mandatory)
+
+- Treat fees as part of correctness, not an optional optimization.
+- Two-way PoD execution requires paying for:
+  - Remote execution leg.
+  - Callback leg (response/error back to source chain).
+- Pay fees in local native gas token (for example ETH on EVM).
+- Use Inbox fee estimation before sending:
+  - `calculateTwoWayFeeRequiredInLocalToken(remoteMethodCallSize, callBackMethodCallSize, remoteMethodExecutionGas, callBackMethodExecutionGas, gasPrice)`
+- Pass total payment as `msg.value` and callback slice as `callbackFeeLocalWei` when using two-way send helpers.
+- Remember that inbox internally tracks local/remote gas token prices and converts to gas-unit budgets.
+- For practical planning, use same gas price assumption for forward and callback legs unless the user explicitly chooses a different model.
+
+Read `references/fees-and-pricing.md` before implementing new request paths or refactoring old synchronous logic.
 
 ## Implement COTI-Side Privacy Patterns
 
@@ -86,10 +108,14 @@ Read `references/conversion-playbook.md` for a concrete migration checklist and 
 - Ensure every callback/error handler is `onlyInbox`.
 - Ensure request IDs are captured and correlated to domain state.
 - Ensure callback ABI decode matches exact COTI response layout.
+- Ensure fee estimation and budgeting is explicit (`msg.value`, `callbackFeeLocalWei`, and calculator usage).
+- Ensure two-way paths reserve callback fee and do not underfund response legs.
 - Ensure at least one negative-path test covers remote error handling.
+- Ensure at least one negative-path test covers fee-underfunding/revert behavior.
 - Ensure docs or comments explain that PoD calls are asynchronous.
 
 ## References
 
 - `references/type-system-and-roles.md`
 - `references/conversion-playbook.md`
+- `references/fees-and-pricing.md`
