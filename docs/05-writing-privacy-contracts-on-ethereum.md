@@ -17,16 +17,15 @@ Reference: `/docs/contracts/01-it-ct-gt-data-types.md`.
 
 ## Library mode
 
-Use `PodMpcLib` when your operation is covered:
+Use `PodLib` when your operation is covered by the built-in executor ops (for example `add64`, `gt64`, and other helpers in `PodLib64` / `PodLib128` / `PodLib256`).
 
-- `add`
-- `gt`
+You implement EVM request/callback logic only. Entrypoints that send two-way messages must be **payable** and pass **`totalValueWei`** (typically `msg.value`) and **`callbackFeeLocalWei`** into the library helper. See [Fees, gas, and oracle](contracts/04-fees-gas-and-oracle.md).
 
-You implement EVM request/callback logic only.
+On a network that ships a preset mixin (e.g. `PodUserSepolia`), prefer **`contract App is PodLib, PodUserSepolia`** and wire `setInbox` / `configureCoti` from the mixin constants in the constructor (see `/docs/04-getting-started.md`).
 
 ## Custom mode
 
-Use `MpcAbiCodec` + a COTI-side contract when operation is not covered by `PodMpcLib`.
+Use `MpcAbiCodec` + a COTI-side contract when operation is not covered by `PodLib`.
 
 You must define and maintain:
 
@@ -72,13 +71,13 @@ Recommended storage primitives:
 
 ## 5. Secure configuration paths
 
-Important: `MpcUser.configureCoti(...)` is `public virtual` in this SDK.
+Routing is updated through **`PodUser.configure(...)`**, which is **`onlyOwner`** in this SDK.
 
 Production guidance:
 
-- wrap or override with access control,
-- emit config change events,
-- consider timelock/multisig for privileged changes.
+- keep the owner account or role model explicit (multisig, timelock, etc.),
+- emit config change events from your app contract when you add wrappers,
+- avoid ad-hoc `setInbox` / executor changes without governance.
 
 ## 6. Design UX-safe read APIs
 
@@ -114,9 +113,11 @@ Minimum test set:
 - COTI executor and chain ID configured.
 - config functions access-controlled.
 - events cover request creation, completion, and failure.
+- Fee and oracle policy understood: operators set `FeeConfig` and price oracle on `InboxMiner`; apps supply sufficient `msg.value` and `callbackFeeLocalWei` (see `/docs/contracts/04-fees-gas-and-oracle.md`).
 
 Related docs:
 
 - `/docs/05a-async-execution.md`
 - `/docs/05b-multi-party-computing-library-mpclib.md`
 - `/docs/contracts/02-contract-patterns-and-checklist.md`
+- `/docs/contracts/04-fees-gas-and-oracle.md`

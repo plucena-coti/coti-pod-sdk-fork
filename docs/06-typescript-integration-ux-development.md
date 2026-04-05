@@ -57,3 +57,4 @@ For callback outputs:
 - Avoid logging ciphertext-signature payloads alongside identifying metadata.
 - Ensure dApp can show async request states (`pending/completed/failed`).
 - Ensure decrypt path is consistent across web/mobile environments.
+- For payable contract calls, estimate **`value`** and **`callbackFeeLocalWei`** (if the ABI exposes them) using the deployed Inbox’s `calculateTwoWayFeeRequiredInLocalToken` view where possible; see `/docs/contracts/04-fees-gas-and-oracle.md`.

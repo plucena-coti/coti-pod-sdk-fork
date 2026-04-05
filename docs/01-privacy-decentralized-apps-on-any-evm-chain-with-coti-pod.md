@@ -53,7 +53,8 @@ sequenceDiagram
 ## What this SDK provides
 
 - Inbox contracts/interfaces for request-response flow.
-- `PodMpcLib` helpers for common private operations (`add`, `gt`).
+- `PodLib` helpers for common private operations (e.g. `add64`, `gt64`, and width-specific variants).
+- Optional **network preset mixins** (e.g. `PodUserSepolia`) with inbox / COTI chain / executor constants; combine with `PodLib` as `contract App is PodLib, PodUserSepolia` and wire them in the constructor (see `/docs/04-getting-started.md`).
 - `MpcAbiCodec` argument typing and payload re-encoding logic.
 - `MpcCore` type declarations and conversion operations.
 - `CotiPodCrypto` TypeScript helper for encrypt/decrypt UX.

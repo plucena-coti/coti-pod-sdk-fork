@@ -25,6 +25,7 @@ nav:
       - it/ct/gt data types: contracts/01-it-ct-gt-data-types.md
       - Contract patterns and checklist: contracts/02-contract-patterns-and-checklist.md
       - Request builder and remote calls: contracts/03-request-builder-and-remote-calls.md
+      - Fees, gas, and oracle: contracts/04-fees-gas-and-oracle.md
 
 theme:
   name: material

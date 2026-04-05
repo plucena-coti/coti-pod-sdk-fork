@@ -4,13 +4,19 @@ Use this checklist before deploying a production privacy contract.
 
 ## Recommended contract shape
 
-1. Inherit from `PodMpcLib` (or `InboxUser` for custom mode).
+1. Inherit from `PodLib` (or `InboxUser` for custom mode).
 2. Accept private values as `it*` on EVM entrypoints.
-3. Submit request via `PodMpcLib` or `inbox.sendTwoWayMessage(...)`.
+3. Submit request via `PodLib` helpers (e.g. `add64`, `gt64`) or `IInbox.sendTwoWayMessage{value: ...}(..., callbackFeeLocalWei)`.
 4. Store `requestId` correlation state.
 5. Implement callback and error callback with `onlyInbox`.
 6. Decode callback into `ct*` and persist.
 7. Expose status/result readers for async UX.
+
+## Fee and gas checklist
+
+- Expose **payable** entrypoints (or pull native balance) when using two-way sends; forward **`msg.value`** as the total fee and pass an explicit **`callbackFeeLocalWei`** (see `/docs/contracts/04-fees-gas-and-oracle.md`).
+- Prefer **`calculateTwoWayFeeRequiredInLocalToken`** on the deployed Inbox (with the same oracle and `FeeConfig` as production) before choosing `msg.value` and the callback slice.
+- Test **too-low total** and **too-low callback** reverts in addition to the happy path.
 
 ## Critical security controls
 
@@ -54,3 +60,4 @@ Use this checklist before deploying a production privacy contract.
 - Error callback updates failure state.
 - Request ID mapping is deterministic.
 - Frontend integration can decrypt returned ciphertext correctly.
+- Fee sufficiency: success with estimated fees plus buffer; reverts when `msg.value` or `callbackFeeLocalWei` is under the configured minima.

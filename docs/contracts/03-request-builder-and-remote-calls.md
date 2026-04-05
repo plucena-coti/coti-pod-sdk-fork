@@ -55,30 +55,35 @@ Line-by-line explanation:
 5. `.build()`
    Finalizes compact payload bytes + datatype metadata into `IInbox.MpcMethodCall`.
 
-Then request is sent:
+Then request is sent (payable: total fee is `msg.value`; callback slice is explicit):
 
 ```solidity
-IInbox(inbox).sendTwoWayMessage(
+IInbox(inbox).sendTwoWayMessage{value: msg.value}(
     cotiChainId,
     mpcExecutorAddress,
     methodCall,
     PErc20.updateBalanceCallback.selector,
-    PodMpcLib.onDefaultMpcError.selector
+    PodLibBase.onDefaultMpcError.selector,
+    callbackFeeLocalWei
 );
 ```
 
 Explanation:
 
-1. `cotiChainId`
+1. `{value: msg.value}`
+   Total native token budget for this two-way message (see [Fees, gas, and oracle](04-fees-gas-and-oracle.md)).
+2. `cotiChainId`
    Target chain ID for execution route.
-2. `mpcExecutorAddress`
+3. `mpcExecutorAddress`
    Target remote contract/executor address.
-3. `methodCall`
+4. `methodCall`
    Built payload with selector + encoded args + datatype metadata.
-4. `updateBalanceCallback.selector`
+5. `updateBalanceCallback.selector`
    Callback for success response bytes.
-5. `onDefaultMpcError.selector`
-   Callback for failure path.
+6. `onDefaultMpcError.selector`
+   Callback for failure path (`PodLibBase` default handler in library-based apps).
+7. `callbackFeeLocalWei`
+   Portion of `msg.value` reserved for the return leg; must be greater than zero and not greater than `msg.value`.
 
 ## Matching COTI signature (important)
 
@@ -117,3 +122,4 @@ If field order or types differ, decode will fail or produce corrupted state.
 - Argument order matches target function parameter order exactly.
 - EVM private inputs use `it*`; COTI parameters use corresponding `gt*`.
 - Callback decode tuple matches COTI `abi.encode(...)` tuple exactly.
+- Payable entrypoints set `msg.value` and `callbackFeeLocalWei` using inbox fee estimates and adequate buffer ([Fees, gas, and oracle](04-fees-gas-and-oracle.md)).

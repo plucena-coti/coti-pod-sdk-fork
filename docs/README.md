@@ -7,7 +7,10 @@ Everything here is grounded in source files in this repository:
 - `/contracts/IInbox.sol`
 - `/contracts/InboxUser.sol`
 - `/contracts/mpc/MpcUser.sol`
-- `/contracts/mpc/PodMpcLib.sol`
+- `/contracts/mpc/PodLib.sol` (and `PodLib64` / `PodLib128` / `PodLib256`)
+- `/contracts/mpc/PodUserSepolia.sol` (network routing constants; use with `PodLib`)
+- `/contracts/fee/InboxFeeManager.sol`
+- `/contracts/InboxMiner.sol`
 - `/contracts/mpccodec/MpcAbiCodec.sol`
 - `/contracts/utils/mpc/MpcCore.sol`
 - `/src/coti-pod-crypto.ts`
@@ -27,6 +30,7 @@ Then read deep dives:
 - `/docs/contracts/01-it-ct-gt-data-types.md`
 - `/docs/contracts/02-contract-patterns-and-checklist.md`
 - `/docs/contracts/03-request-builder-and-remote-calls.md`
+- `/docs/contracts/04-fees-gas-and-oracle.md`
 
 ## Full document list
 
@@ -45,6 +49,7 @@ Then read deep dives:
 - `/docs/contracts/01-it-ct-gt-data-types.md`
 - `/docs/contracts/02-contract-patterns-and-checklist.md`
 - `/docs/contracts/03-request-builder-and-remote-calls.md`
+- `/docs/contracts/04-fees-gas-and-oracle.md`
 
 ## Scope notes
 

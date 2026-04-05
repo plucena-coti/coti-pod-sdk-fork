@@ -4,8 +4,8 @@ PoD private operations are request/response workflows. Treat them as state machi
 
 ## Canonical lifecycle
 
-1. User sends tx with `it*` input.
-2. EVM submits Inbox request (`sendTwoWayMessage`).
+1. User sends tx with `it*` input (and, for payable flows, native fee via `msg.value`).
+2. EVM submits Inbox request (`sendTwoWayMessage{value: ...}(..., callbackFeeLocalWei)` or a `PodLib` helper that forwards the same).
 3. COTI executes private logic.
 4. COTI returns ABI payload with `inbox.respond(...)`.
 5. Inbox calls EVM callback.

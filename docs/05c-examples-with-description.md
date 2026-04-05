@@ -8,15 +8,16 @@ Path: `/contracts/examples/MpcAdder.sol`
 
 What it demonstrates:
 
-- Minimal `PodMpcLib` usage.
-- Request submission with `PodMpcLib.add(...)`.
+- Minimal `PodLib` usage.
+- Payable request submission with `add64`, passing **`msg.value`** and **`callbackFeeLocalWei`**.
 - Callback decode and encrypted result storage (`ctUint64`).
 
 What to add in production:
 
 - request ownership mapping,
 - explicit request status tracking,
-- stronger event coverage for completion/failure.
+- stronger event coverage for completion/failure,
+- fee estimation (`calculateTwoWayFeeRequiredInLocalToken`) and tests for under-funded sends (see `/docs/contracts/04-fees-gas-and-oracle.md`).
 
 ## `Millionaire.sol`
 
@@ -25,7 +26,7 @@ Path: `/contracts/examples/millionaire/Millionaire.sol`
 What it demonstrates:
 
 - User registration with `itUint64` encrypted wealth.
-- Two directional `gt` requests for pair comparison.
+- Two directional **`gt64`** requests for pair comparison, each with its own **`msg.value`** share and **`callbackFeeLocalWei`**.
 - Request ID correlation and callback request-id recovery pattern.
 
 What to add in production:
@@ -41,7 +42,7 @@ Path: `/contracts/examples/perc20/PErc20.sol`
 What it demonstrates:
 
 - Custom method payload construction through `MpcAbiCodec`.
-- Two-way Inbox request targeting COTI-side contract logic.
+- Payable two-way send via `_sendTwoWayWithFee` with explicit callback slice.
 - Callback decode of multi-value tuple and encrypted balance updates.
 - EVM `it*` request arguments being consumed as `gt*` parameters on COTI side.
 
