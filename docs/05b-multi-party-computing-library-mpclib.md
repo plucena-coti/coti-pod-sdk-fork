@@ -63,39 +63,16 @@ Library sends always go through `_sendTwoWayWithFee`:
 
 See [Fees, gas, and oracle](contracts/04-fees-gas-and-oracle.md) for configuration, `calculateTwoWayFeeRequiredInLocalToken`, and the difference between total and callback fee.
 
-## Important configuration behavior
-
-Inherited from `/contracts/mpc/PodUser.sol`:
-
-- default `mpcExecutorAddress`: `0x0000000000000000000000000000000000000000`
-- default `cotiChainId`: `2632500`
-- **`configure(address inbox_, address mpcExecutor_, uint256 cotiChainId_)`** is **`onlyOwner`** and updates routing (replaces older “public `configureCoti`” patterns).
-
-Production implication:
-
-- do not expose unrestricted reconfiguration,
-- gate config updates with access control.
-
 ## Integration example
 
 ```solidity
 import "@coti/pod-sdk/contracts/mpc/PodLib.sol";
 import "@coti/pod-sdk/contracts/mpc/PodLibBase.sol";
 
-contract MyContract is PodLib {
+contract MyContract is PodLib, PodUserSepolia {
     address public owner;
 
     modifier onlyOwner() { require(msg.sender == owner, "only owner"); _; }
-
-    constructor(address inboxAddress, address executor, uint256 cotiChain) PodLibBase(msg.sender) {
-        owner = msg.sender;
-        setInbox(inboxAddress);
-        configureCoti(executor, cotiChain);
-    }
-
-    function setCotiRoute(address executor, uint256 cotiChain) external onlyOwner {
-        configure(address(0), executor, cotiChain);
-    }
 
     function privateAdd(
         itUint64 calldata a,

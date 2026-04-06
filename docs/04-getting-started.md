@@ -62,32 +62,16 @@ Other networks can follow the same pattern with additional preset contracts as t
 pragma solidity ^0.8.26;
 
 import "@coti/pod-sdk/contracts/mpc/PodLib.sol";
-import "@coti/pod-sdk/contracts/mpc/PodLibBase.sol";
+import "@coti/pod-sdk/contracts/mpc/PodUserSepolia.sol";
 import "@coti/pod-sdk/contracts/utils/mpc/MpcCore.sol";
 
-contract PrivateCompare is PodLib {
+contract PrivateCompare is PodLib, PodUserSepolia {
     address public owner;
 
     mapping(bytes32 => ctBool) public resultByRequest;
 
     event CompareRequested(bytes32 indexed requestId, address indexed caller);
     event CompareCompleted(bytes32 indexed requestId, ctBool result);
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "only owner");
-        _;
-    }
-
-    constructor(address inboxAddress, address executor, uint256 cotiChain) PodLibBase(msg.sender) {
-        owner = msg.sender;
-        setInbox(inboxAddress);
-        configureCoti(executor, cotiChain);
-    }
-
-    // Gate reconfiguration in production.
-    function setCotiRoute(address executor, uint256 cotiChain) external onlyOwner {
-        configure(address(0), executor, cotiChain);
-    }
 
     /// @param callbackFeeLocalWei Portion of `msg.value` reserved for the callback leg; see /docs/contracts/04-fees-gas-and-oracle.md
     function compare(

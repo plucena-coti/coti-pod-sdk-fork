@@ -36,10 +36,11 @@ Track status transitions:
 
 ```solidity
 function callback(bytes memory data) external onlyInbox {
+    // Validate that the remote contract is trusted:
+    (uint remote_chain_id, address remote_sender) = inbox.inboxMsgSender();
+    require(remote_chain_id == EXPECTER_REMOTE_CHAIN && remote_sender == EXPECTED_PEER_CONTRACT,
+        "not allowed");
     bytes32 requestId = inbox.inboxSourceRequestId();
-    if (requestId == bytes32(0)) {
-        requestId = inbox.inboxRequestId();
-    }
 
     // Must match COTI-side abi.encode layout exactly.
     ctUint64 result = abi.decode(data, (ctUint64));
@@ -52,6 +53,11 @@ function callback(bytes memory data) external onlyInbox {
 
 ```solidity
 function onError(bytes32 requestId) external onlyInbox {
+    // Validate that the remote contract is trusted:
+    (uint remote_chain_id, address remote_sender) = inbox.inboxMsgSender();
+    require(remote_chain_id == EXPECTER_REMOTE_CHAIN && remote_sender == EXPECTED_PEER_CONTRACT,
+        "not allowed");
+
     (uint256 code, string memory message) = inbox.getOutboxError(requestId);
     status[requestId] = RequestStatus.FAILED;
     emit RequestFailed(requestId, code, message);
