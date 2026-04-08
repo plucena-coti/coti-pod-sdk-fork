@@ -8,7 +8,14 @@ async function main() {
   
   // The deployed contract address and your transaction hash
   const contractAddress = "0x2aA07A3A4FCDdb8D64febF61e7cfDEF79Fa0b6f9";
-  const txHash = "0xef676be92e51de549d13723257fa4e18f1496f5160d86bf5a918af35bac0f88f";
+  
+  // Find the txHash from environment variable
+  const txHash = process.env.TX_HASH;
+  if (!txHash) {
+      console.error("❌ Please provide a transaction hash via the TX_HASH environment variable.");
+      console.error("Usage: TX_HASH=0xYourTxHash npx hardhat run scripts/read-result.ts --network sepolia");
+      process.exit(1);
+  }
   
   const artifact = await hre.artifacts.readArtifact("PrivateAdder");
   const privateAdder = new ethers.Contract(contractAddress, artifact.abi, provider);
