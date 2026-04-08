@@ -29,10 +29,9 @@ async function main() {
   const encA = await CotiPodCrypto.encrypt("10", "testnet", DataType.Uint64);
   const encB = await CotiPodCrypto.encrypt("20", "testnet", DataType.Uint64);
 
-  // 2. Budget fees (using placeholder arbitrary amounts as required by tutorial)
-  // Usually queried from PriceOracle + calculateTwoWayFeeRequiredInLocalToken
-  const callbackFeeWei = ethers.parseEther("0.001");
-  const totalWei = ethers.parseEther("0.01");
+  // 2. Budget fees (Using safer higher values based on our Inbox Oracle simulation)
+  const callbackFeeWei = ethers.parseEther("0.008");
+  const totalWei       = ethers.parseEther("0.015");
 
   console.log("2. Submitting 'add' transaction...");
   const tx = await privateAdder.add(
