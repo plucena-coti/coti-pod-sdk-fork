@@ -1,48 +1,61 @@
 import hre from "hardhat";
 import { ethers } from "ethers";
-import { CotiPodCrypto, DataType } from "../src/index.js";
+import { Wallet } from "@coti-io/coti-ethers";
+import { buildStringInputText } from "@coti-io/coti-sdk-typescript";
 
-const EVM_CONTRACT = "0xfA56400cebf6dfBEa5fBB0A13ce17Eb1017Aa156";
+const EVM_CONTRACT = "0x6CcA577c51C878c64510CCb782F99eAE7d698d72";
 const COTI_CONTRACT = "0xDe6466c5C7B81d995C18B2a57036Bc7a6857a1e8";
 
 async function main() {
   const privateKey = process.env.PRIVATE_KEY!;
-  const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL!);
-  const wallet = new ethers.Wallet(privateKey, provider);
+  
+  // 1. Recover AES key and COTI signer for signing the `itString`, even though we are sending on Sepolia.
+  const cotiProvider = new ethers.JsonRpcProvider("https://testnet.coti.io/rpc");
+  const cotiSigner = new Wallet(privateKey, cotiProvider);
+  await cotiSigner.generateOrRecoverAes();
+  const accountAesKey = cotiSigner.getUserOnboardInfo()?.aesKey;
+  if (!accountAesKey) throw new Error("Please onboard your account to COTI testnet first.");
 
-  const artifact = await hre.artifacts.readArtifact("DirectMessageEvm");
-  const dmEvm = new ethers.Contract(EVM_CONTRACT, artifact.abi, wallet);
+  console.log(`\n🔑 Coti Testnet AES key: ${accountAesKey}`);
 
-  console.log("\n2. Encrypting Direct Message payload...");
-  const encryptedPayload = (await CotiPodCrypto.encrypt(
-    "Hello from Sepolia to COTI testnet! This is a longer cross-chain secret message spanning blocks.", 
-    "testnet", 
-    DataType.String
-  )) as any;
+  // 2. Setup Sepolia Provider to dispatch the transaction
+  const sepoliaProvider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL!);
+  const sepoliaWallet = new ethers.Wallet(privateKey, sepoliaProvider);
+
+  const dmEvmArtifact = await hre.artifacts.readArtifact("DirectMessageEvm");
+  const dmEvm = new ethers.Contract(EVM_CONTRACT, dmEvmArtifact.abi, sepoliaWallet);
   
-  const formattedCiphertext = encryptedPayload.ciphertext.value.map((c: any) => 
-     typeof c === "string" && !c.startsWith("0x") ? "0x" + c : c
-  );
+  const dmPodArtifact = await hre.artifacts.readArtifact("DirectMessagePod");
+  const selector = new ethers.Interface(dmPodArtifact.abi).getFunction("receiveMessage")!.selector;
+
+  console.log(`\n2. Encrypting Direct Message payload mapped to COTI selector [${selector}]...`);
   
-  // signature is already an array of "0x..." strings for DataType.String!
-  const formattedSignature = encryptedPayload.signature;
-  
-  const itStringArgs = {
-      ciphertext: { value: formattedCiphertext },
-      signature: formattedSignature,
+  // 3. Build the itString properly using the SDK
+  const senderContext = {
+    wallet: sepoliaWallet,
+    userKey: accountAesKey,
   };
+  
+  // CRITICAL FIX: The itString must be bound to the COTI_CONTRACT and the specific receiveMessage selector!
+  const itStringArgs = await buildStringInputText(
+    "Short message",
+    senderContext,
+    COTI_CONTRACT,
+    selector
+  );
 
-  const callbackFeeWei = ethers.parseEther("0.005"); 
-  const totalWei       = ethers.parseEther("0.01"); 
+  // The struct is ready. Now dispatch it over the bridge!
+  const callbackFeeWei = ethers.parseEther("0.001"); 
+  const totalWei       = ethers.parseEther("0.004"); 
 
-  console.log(`\n3. Dispatching message across the bridge to ${wallet.address}...`);
+  console.log(`\n3. Dispatching message across the bridge to ${sepoliaWallet.address}...`);
   console.log(`   (msg.value: ${ethers.formatEther(totalWei)} ETH)`);
   
   const tx = await dmEvm.sendMessage(
     itStringArgs,
-    wallet.address, 
+    sepoliaWallet.address, 
     callbackFeeWei,
-    { value: totalWei, gasLimit: 3500000 }
+    { value: totalWei, gasLimit: 3000000 }
   );
 
   console.log("Transaction Hash:", tx.hash);
@@ -63,7 +76,6 @@ async function main() {
   console.log("\n✅ Dispatch confirmed!");
   console.log(`Bridge RequestId: ${requestId}`);
   console.log(`\nThe MPC network will now route this encrypted message to COTI Testnet (${COTI_CONTRACT}).`);
-  console.log(`You can monitor the callback on Sepolia via the 'MessageReply' event for this RequestId!`);
 }
 
 main().catch((error) => {

@@ -9,7 +9,11 @@ import "@coti-io/coti-contracts/contracts/utils/mpc/MpcCore.sol";
 
 // Interfaces mimicking the deployed DirectMessagePod ABI for selector resolution
 interface IDirectMessagePod {
-    function receiveMessage(itString calldata message, address recipient) external;
+    // Under the hood, an `itString` struct (input text) converts implicitly to a `gtString` struct (garbled text) when traversing the bridge!
+    // But importantly, `MpcAbiCodec` calculates the method selector BEFORE we run the ABI compilation mapping.
+    // If we define this as `itString`, it will encode selector `receiveMessage(itString,address)` rather than `receiveMessage(gtString,address)`!
+    // ALWAYS match the destination `gt` types in interfaces if your target takes `gt` types.
+    function receiveMessage(gtString calldata message, address recipient) external;
 }
 
 contract DirectMessageEvm is PodLibBase, PodUserSepolia {
