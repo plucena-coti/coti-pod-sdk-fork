@@ -35,11 +35,62 @@ sequenceDiagram
 ## Technical Implementation Files
 
 ### 1. Smart Contracts
-- **`contracts/examples/DirectMessageEvm.sol` (Not explicitly tracked in current folder but implies EVM-side logic)**
-  Handles the native EVM user interaction. Allows users to attach native ETH (msg.value) to pay the COTI Relayer's gas fees and callback fees.
-- **`contracts/examples/DirectMessagePod.sol`**
-  Handles the MPC (Multi-Party Computation) side.
-  *Key Security mechanism:* `MpcCore.offBoardToUser(message, recipient)`. This ensures that *only* the specific recipient's AES Key can natively decrypt `getMessage(requestId)`. 
+
+#### EVM Side: `contracts/examples/DirectMessageEvm.sol`
+This contract handles the native EVM user interaction. It allows users to attach native ETH (`msg.value`) to pay the COTI Relayer's gas fees and callback fees.
+
+Here is the critical `sendMessage` function that scripts call to dispatch the payload across the bridge:
+
+```solidity
+    // In DirectMessageEvm.sol
+    function sendMessage(itString memory encryptedMessage, address recipient, uint256 callbackFeeLocalWei) external payable returns (bytes32) {
+        // Construct the cross-chain method dispatch dynamically via MpcAbiCodec
+        MpcAbiCodec.MpcMethodCallContext memory ctx = MpcAbiCodec.create(IDirectMessagePod.receiveMessage.selector, 2);
+        ctx = MpcAbiCodec.addArgument(ctx, encryptedMessage);
+        ctx = MpcAbiCodec.addArgument(ctx, recipient);
+        IInbox.MpcMethodCall memory methodCall = MpcAbiCodec.build(ctx);
+
+        uint256 totalValueWei = msg.value;
+
+        // Perform the dispatch using PodLib abstracted _sendTwoWayWithFee
+        bytes32 requestId = _sendTwoWayWithFee(
+            totalValueWei,
+            callbackFeeLocalWei,
+            cotiChainId,
+            mpcExecutorAddress,
+            methodCall,
+            this.onMessageReceived.selector,
+            this.onDefaultMpcError.selector
+        );
+
+        requestSenders[requestId] = msg.sender;
+        emit MessageDispatched(requestId, msg.sender, recipient);
+
+        return requestId;
+    }
+```
+
+#### COTI Side: `contracts/examples/DirectMessagePod.sol`
+This contract handles the MPC (Multi-Party Computation) side.
+The Sepolia Inbox Relayer calls `receiveMessage()`. Inside this method, `MpcCore.offBoardToUser()` ensures that *only* the specific recipient's AES Key can natively decrypt the data later via `getMessage(requestId)`. 
+
+```solidity
+    // In DirectMessagePod.sol
+    function receiveMessage(gtString calldata message, address recipient) external onlyInbox {
+        // Off-board the garbled string into a cipher state exclusively for the recipient
+        ctString memory cipherForRecipient = MpcCore.offBoardToUser(message, recipient);
+        bytes32 requestId = inbox.inboxSourceRequestId();
+        
+        if (requestId == bytes32(0)) {
+            requestId = inbox.inboxRequestId();
+        }
+        userMessages[requestId] = cipherForRecipient;
+
+        emit CiphertextSaved(requestId, recipient);
+
+        inbox.respond(abi.encode(requestId, "Message received seamlessly"));
+    }
+``` 
 
 ### 2. Interaction Scripts
 
