@@ -7,11 +7,26 @@ dotenv.config();
 
 const config: HardhatUserConfig = {
   plugins: [hardhatEthers, hardhatVerify],
-  solidity: "0.8.26",
+  solidity: {
+    version: "0.8.26",
+    settings: {
+      evmVersion: "london",
+      optimizer: {
+        enabled: true,
+        runs: 200
+      }
+    }
+  },
   paths: {
     sources: "./contracts/examples"
   },
   networks: {
+    cotiTestnet: {
+      type: "http",
+      url: "https://testnet.coti.io/rpc",
+      chainId: 7082400,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+    },
     sepolia: {
       type: "http",
       url: process.env.SEPOLIA_RPC_URL || "",

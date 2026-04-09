@@ -58,9 +58,20 @@ async function main() {
       const ctHex = typeof ct === "bigint" ? "0x" + ct.toString(16) : String(ct);
       console.log(`4. Encrypted Sum (ctUint64): ${ctHex}`);
       
-      // We need a real user accountAesKey to decrypt, using placeholder here
-      const dummyKey = "0x0000000000000000000000000000000000000000000000000000000000000000";
-      console.log(`\nTo decrypt this, pass the AES Key and ctHex to CotiPodCrypto.decrypt(ctHex, key, DataType.Uint64).`);
+      // 5. Decrypt the result using an AES Key from the environment
+      const accountAesKey = process.env.ACCOUNT_AES_KEY;
+      
+      if (!accountAesKey) {
+          console.log(`\n⚠️ To decrypt this, please provide your AES Key via the ACCOUNT_AES_KEY environment variable.`);
+          console.log(`Example: TX_HASH=${txHash} ACCOUNT_AES_KEY=0xYourAesKey npx hardhat run scripts/read-result.ts --network sepolia`);
+      } else {
+          try {
+              const decryptedString = CotiPodCrypto.decrypt(ctHex, accountAesKey, DataType.Uint64);
+              console.log(`\n🎉 5. Decrypted Sum (Plaintext): ${decryptedString}`);
+          } catch (e: any) {
+              console.error(`\n❌ Decryption failed. Ensure your ACCOUNT_AES_KEY is the correct 32-byte hex string. Error: ${e.message}`);
+          }
+      }
   } else {
       console.log("\n⚠️ The request is still Pending. The COTI MPC network has not processed it yet.");
       console.log("According to the docs: 'Undershooting typically leaves the request stuck or failing.'");
