@@ -37,7 +37,9 @@
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
-    "@coti-io/coti-sdk-typescript": "^1.0.0"
+    "@coti-io/coti-ethers": "^1.0.5",
+    "@coti-io/coti-sdk-typescript": "^1.0.0",
+    "@coti/pod-sdk": "github:cotitech-io/coti-pod-sdk"
   },
   "devDependencies": {
     "@coti-io/coti-contracts": "^1.1.0",

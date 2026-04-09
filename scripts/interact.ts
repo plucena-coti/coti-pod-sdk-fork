@@ -20,7 +20,7 @@ async function main() {
   // Replace with your actual deployed contract address and AES key
   const contractAddress = "0x2aA07A3A4FCDdb8D64febF61e7cfDEF79Fa0b6f9";
   // Simulated AES Key for user. In a real app this is derived by user-onboarding.
-  const accountAesKey = "0x0000000000000000000000000000000000000000000000000000000000000000"; 
+  const accountAesKey = "86f6ca0fb3c6bba2c3eadae8d6b70cdd"; 
 
   const artifact = await hre.artifacts.readArtifact("PrivateAdder");
   const privateAdder = new ethers.Contract(contractAddress, artifact.abi, wallet);
