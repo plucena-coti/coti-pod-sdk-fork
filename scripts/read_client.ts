@@ -46,7 +46,7 @@ async function main() {
     console.log(`Length: ${ctStringCells.length} parts`);
     
     // Decrypt locally using the user-provided AES Key
-    console.log(`\n🔓 Attempting Decryption...`);
+    console.log(`\n🔓 Attempting Decryption using AES Key...`);
     const plaintext = decryptString({ value: ctStringCells }, aesKey);
     
     console.log(`\n✅ Message Decrypted Successfully!!`);
@@ -54,12 +54,16 @@ async function main() {
     console.log(`📜 "${plaintext}"`);
     console.log(`-----------------------------------`);
     
+    // A little sanity warning on garbled text scenarios:
+    if (plaintext.includes("") || /[^\x20-\x7E]/.test(plaintext)) {
+        console.warn(`\n⚠️  WARNING: The decrypted text contains unreadable binary characters.`);
+        console.warn(`COTI MPC network mathematically locked this data ONLY to the recipient who was specified during the send!`);
+        console.warn(`If you sent this to someone else's address from your test wallet, ONLY THEIR AES KEY will unlock the text! Your local sender AES key cannot decrypt data mapped to someone else on the network!`);
+    }
+
   } catch (err: any) {
     console.error("\n❌ Failed to read or decrypt the message.");
     console.error("Reason:", err.shortMessage || err.message);
-    if (err?.message?.includes("out of bounds") || err?.message?.includes("bad array")) {
-        console.error("💡 Hint: Check if the AES key is correct. An incorrect key provides garbled entropy that often causes string decoding to crash.");
-    }
   }
 }
 
