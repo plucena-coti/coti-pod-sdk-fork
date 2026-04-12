@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-artifact-1",
+  "contractName": "IDirectMessagePod",
+  "sourceName": "contracts/examples/DirectMessageEvm.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "gtUint64[]",
+              "name": "value",
+              "type": "uint256[]"
+            }
+          ],
+          "internalType": "struct gtString",
+          "name": "message",
+          "type": "tuple"
+        },
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        }
+      ],
+      "name": "receiveMessage",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "immutableReferences": {},
+  "inputSourceName": "project/contracts/examples/DirectMessageEvm.sol",
+  "buildInfoId": "solc-0_8_26-fe1a4e4a505966a69217682120b0629c10751bbb"
+}

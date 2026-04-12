@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import {PodLib} from "../mpc/PodLib.sol";
 import {PodLibBase} from "../mpc/PodLibBase.sol";
 import {PodUserSepolia} from "../mpc/PodUserSepolia.sol";
 import {MpcAbiCodec} from "../mpccodec/MpcAbiCodec.sol";
@@ -16,7 +17,7 @@ interface IDirectMessagePod {
     function receiveMessage(gtString calldata message, address recipient) external;
 }
 
-contract DirectMessageEvm is PodLibBase, PodUserSepolia {
+contract DirectMessageEvm is PodLib, PodUserSepolia {
     using MpcAbiCodec for MpcAbiCodec.MpcMethodCallContext;
 
     // Track active requests to correlate them
@@ -25,10 +26,7 @@ contract DirectMessageEvm is PodLibBase, PodUserSepolia {
     event MessageDispatched(bytes32 indexed requestId, address indexed sender, address indexed recipient);
     event MessageReply(bytes32 indexed requestId, bytes32 originalId, string status);
 
-    constructor() PodLibBase(msg.sender) {
-        setInbox(INBOX_ADDRESS);
-        configureCoti(MPC_EXECUTOR_ADDRESS, COTI_CHAIN_ID);
-    }
+    constructor() PodLibBase(msg.sender) {}
 
     /// @notice Used if you redeploy the Pod contract.
     function setCotiContract(address _cotiContract) external onlyOwner {

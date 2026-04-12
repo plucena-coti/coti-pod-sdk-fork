@@ -3,8 +3,8 @@ import { ethers } from "ethers";
 import { Wallet } from "@coti-io/coti-ethers";
 import { buildStringInputText } from "@coti-io/coti-sdk-typescript";
 
-const EVM_CONTRACT = "0x6CcA577c51C878c64510CCb782F99eAE7d698d72";
-const COTI_CONTRACT = "0xDe6466c5C7B81d995C18B2a57036Bc7a6857a1e8";
+const EVM_CONTRACT = "0xFE0E04D422DB9b5Ffb88fEbdB4c3D366C919F0bB";
+const COTI_CONTRACT = "0x22a4B9248815d8Ecc62912bA343Dae953904d6d8";
 
 async function main() {
   const privateKey = process.env.PRIVATE_KEY!;
@@ -30,23 +30,22 @@ async function main() {
 
   console.log(`\n2. Encrypting Direct Message payload mapped to COTI selector [${selector}]...`);
   
-  // 3. Build the itString properly using the SDK
   const senderContext = {
     wallet: sepoliaWallet,
     userKey: accountAesKey,
   };
   
-  // CRITICAL FIX: The itString must be bound to the COTI_CONTRACT and the specific receiveMessage selector!
+  // Bind the itString to the specific COTI_CONTRACT and target selector!
   const itStringArgs = await buildStringInputText(
-    "Short message",
+    "Hello from Sepolia with high gas!",
     senderContext,
     COTI_CONTRACT,
     selector
   );
 
-  // The struct is ready. Now dispatch it over the bridge!
-  const callbackFeeWei = ethers.parseEther("0.001"); 
-  const totalWei       = ethers.parseEther("0.004"); 
+  // Bumping gas limits aggressively for itString dynamic arrays!
+  const callbackFeeWei = ethers.parseEther("0.05"); // Aggressive callback fee
+  const totalWei       = ethers.parseEther("0.08"); // Aggressive total value
 
   console.log(`\n3. Dispatching message across the bridge to ${sepoliaWallet.address}...`);
   console.log(`   (msg.value: ${ethers.formatEther(totalWei)} ETH)`);
@@ -55,7 +54,7 @@ async function main() {
     itStringArgs,
     sepoliaWallet.address, 
     callbackFeeWei,
-    { value: totalWei, gasLimit: 3000000 }
+    { value: totalWei, gasLimit: 5000000 }
   );
 
   console.log("Transaction Hash:", tx.hash);
@@ -76,6 +75,7 @@ async function main() {
   console.log("\n✅ Dispatch confirmed!");
   console.log(`Bridge RequestId: ${requestId}`);
   console.log(`\nThe MPC network will now route this encrypted message to COTI Testnet (${COTI_CONTRACT}).`);
+  console.log(`\nRun: TX_HASH="${tx.hash}" npx tsx scripts/track_dm.ts\n`);
 }
 
 main().catch((error) => {
