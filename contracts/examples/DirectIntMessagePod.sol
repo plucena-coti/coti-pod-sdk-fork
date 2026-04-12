@@ -20,9 +20,12 @@ contract DirectIntMessagePod is InboxUser {
     /// @notice Called by the Relayer Inbox exclusively.
     /// @param message The encrypted uint64 message from EVM, implicitly decrypted into a garbled int.
     /// @param recipient The address this message is for.
-    function receiveMessage(gtUint64 message, address recipient) external onlyInbox {
+    function receiveMessage(itUint64 calldata message, address recipient) external onlyInbox {
+        // Validate the ciphertext natively inside your code
+        gtUint64 gtMessage = MpcCore.validateCiphertext(message);
+
         // Off-board the garbled uint64 into a cipher state exclusively for the recipient
-        ctUint64 cipherForRecipient = MpcCore.offBoardToUser(message, recipient);
+        ctUint64 cipherForRecipient = MpcCore.offBoardToUser(gtMessage, recipient);
         
         bytes32 requestId = inbox.inboxSourceRequestId();
         if (requestId == bytes32(0)) {
