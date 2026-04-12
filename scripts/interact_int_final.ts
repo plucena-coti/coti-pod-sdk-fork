@@ -4,21 +4,28 @@ import { Wallet } from "@coti-io/coti-ethers";
 import { buildInputText } from "@coti-io/coti-sdk-typescript";
 
 async function main() {
-    const COTI_POD_ADDR = "0xb3a8d2DF02b439fb9c309143feDadA14BB2F618E";
-    const NEW_EVM_ADDR = "0xE2fd06a3c85834178d033F67DeeD362485C0698b";
-    
+    const addrs = JSON.parse(fs.readFileSync("v2_int_deploy.json", "utf8"));
+    const COTI_POD_ADDR = addrs.coti;
+    const EVM_ADDR = addrs.evm;
+
+    console.log(`Using EVM: ${EVM_ADDR}`);
+    console.log(`Using COTI: ${COTI_POD_ADDR}`);
+
     const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL!);
-    const cotiProvider = new ethers.JsonRpcProvider("https://testnet.coti.io/rpc");
     const deployer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
     
+    // Setting up the COTI AES Key (we need this to properly wrap the argument so the relayer can validate it bounds correctly)
+    const cotiProvider = new ethers.JsonRpcProvider("https://testnet.coti.io/rpc");
     const cotiSigner = new Wallet(process.env.PRIVATE_KEY!, cotiProvider);
     await cotiSigner.generateOrRecoverAes();
     const accountAesKey = cotiSigner.getUserOnboardInfo()?.aesKey;
 
     const evmArtifact = JSON.parse(fs.readFileSync("artifacts/contracts/examples/DirectIntMessageEvm.sol/DirectIntMessageEvm.json", "utf8"));
-    const dmEvm = new ethers.Contract(NEW_EVM_ADDR, evmArtifact.abi, deployer);
+    const dmEvm = new ethers.Contract(EVM_ADDR, evmArtifact.abi, deployer);
 
     const cotiArtifact = JSON.parse(fs.readFileSync("artifacts/contracts/examples/DirectIntMessagePod.sol/DirectIntMessagePod.json", "utf8"));
+    
+    // Extract the precise method selector that the COTI relayer will invoke later
     const selector = new ethers.Interface(cotiArtifact.abi).getFunction("receiveMessage")!.selector;
 
     console.log(`\nEncrypting with buildInputText mapped to COTI Pod ${COTI_POD_ADDR} and selector ${selector}...`);
@@ -27,18 +34,21 @@ async function main() {
         userKey: accountAesKey!,
     };
     
-    // Create bounded Int payload (1337)
+    // Create bounded Int payload using `buildInputText` 
+    // IMPORTANT: It ties the signature explicitly to this target address + selector.
+    const secretValue = BigInt(42069);
     const itUint64Args = await buildInputText(
-        BigInt(1337), // The number to encrypt
+        secretValue,
         senderContext,
         COTI_POD_ADDR,
         selector
     );
 
+    // Provide gas buffers
     const callbackFeeWei = ethers.parseEther("0.015");
     const totalWei = ethers.parseEther("0.025"); 
 
-    console.log(`\nDispatching new bounded Int message via ${NEW_EVM_ADDR} to ${deployer.address}...`);
+    console.log(`\nDispatching newly encrypted bounded Int message (${secretValue}) to Sepolia Cross-chain bridge...`);
     const tx = await dmEvm.sendMessage(
         itUint64Args,
         deployer.address, 
@@ -62,5 +72,6 @@ async function main() {
 
     console.log("\n✅ Dispatch confirmed!");
     console.log(`Bridge RequestId: ${requestId}`);
+    console.log(`The network will now attempt to route this payload exactly to ${COTI_POD_ADDR} via MPC!`);
 }
 main().catch(console.error);

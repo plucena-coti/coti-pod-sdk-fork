@@ -9,7 +9,7 @@ import {IInbox} from "../IInbox.sol";
 import "@coti-io/coti-contracts/contracts/utils/mpc/MpcCore.sol";
 
 interface IDirectIntMessagePod {
-    function receiveMessage(itUint64 calldata message, address recipient) external;
+    function receiveMessage(gtUint64 message, address recipient) external;
 }
 
 contract DirectIntMessageEvm is PodLib, PodUserSepolia {

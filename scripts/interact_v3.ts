@@ -4,63 +4,50 @@ import { Wallet } from "@coti-io/coti-ethers";
 import { buildInputText } from "@coti-io/coti-sdk-typescript";
 
 async function main() {
-    const COTI_POD_ADDR = "0xb3a8d2DF02b439fb9c309143feDadA14BB2F618E";
-    const NEW_EVM_ADDR = "0xE2fd06a3c85834178d033F67DeeD362485C0698b";
-    
+    const addrs = JSON.parse(fs.readFileSync("v3_int_deploy.json", "utf8"));
     const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL!);
     const cotiProvider = new ethers.JsonRpcProvider("https://testnet.coti.io/rpc");
     const deployer = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
-    
     const cotiSigner = new Wallet(process.env.PRIVATE_KEY!, cotiProvider);
     await cotiSigner.generateOrRecoverAes();
     const accountAesKey = cotiSigner.getUserOnboardInfo()?.aesKey;
 
     const evmArtifact = JSON.parse(fs.readFileSync("artifacts/contracts/examples/DirectIntMessageEvm.sol/DirectIntMessageEvm.json", "utf8"));
-    const dmEvm = new ethers.Contract(NEW_EVM_ADDR, evmArtifact.abi, deployer);
+    const dmEvm = new ethers.Contract(addrs.evm, evmArtifact.abi, deployer);
 
     const cotiArtifact = JSON.parse(fs.readFileSync("artifacts/contracts/examples/DirectIntMessagePod.sol/DirectIntMessagePod.json", "utf8"));
     const selector = new ethers.Interface(cotiArtifact.abi).getFunction("receiveMessage")!.selector;
 
-    console.log(`\nEncrypting with buildInputText mapped to COTI Pod ${COTI_POD_ADDR} and selector ${selector}...`);
-    const senderContext = {
-        wallet: deployer as any,
-        userKey: accountAesKey!,
-    };
-    
-    // Create bounded Int payload (1337)
     const itUint64Args = await buildInputText(
-        BigInt(1337), // The number to encrypt
-        senderContext,
-        COTI_POD_ADDR,
-        selector
+        BigInt(80085), { wallet: deployer as any, userKey: accountAesKey! }, addrs.coti, selector
     );
 
-    const callbackFeeWei = ethers.parseEther("0.015");
-    const totalWei = ethers.parseEther("0.025"); 
-
-    console.log(`\nDispatching new bounded Int message via ${NEW_EVM_ADDR} to ${deployer.address}...`);
     const tx = await dmEvm.sendMessage(
-        itUint64Args,
-        deployer.address, 
-        callbackFeeWei,
-        { value: totalWei, gasLimit: 2500000 }
+        itUint64Args, deployer.address, ethers.parseEther("0.002"),
+        { value: ethers.parseEther("0.005"), gasLimit: 2500000 }
     );
-
-    console.log("Transaction Hash:", tx.hash);
+    console.log("Tx Hash:", tx.hash);
     const receipt = await tx.wait();
 
-    let requestId = null;
+    let reqId = null;
     for (const log of receipt.logs) {
         try {
             const parsed = dmEvm.interface.parseLog(log as any);
             if (parsed && parsed.name === "MessageDispatched") {
-                requestId = parsed.args.requestId;
-                break;
+                reqId = parsed.args.requestId; break;
             }
-        } catch (e) {}
+        } catch {}
     }
+    console.log(`Bridge RequestId: ${reqId}`);
 
-    console.log("\n✅ Dispatch confirmed!");
-    console.log(`Bridge RequestId: ${requestId}`);
+    for (let i = 0; i < 6; i++) {
+        await new Promise(r => setTimeout(r, 10000));
+        let statusEnum = await dmEvm.statusByRequest(reqId);
+        console.log(`Poll [${i+1}/6] -> Status: ${statusEnum}`);
+        if (statusEnum === 2n) {
+             console.log("🎉 Round-trip Complete!");
+             break;
+        }
+    }
 }
 main().catch(console.error);
