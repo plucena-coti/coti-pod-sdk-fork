@@ -211,3 +211,9 @@ npm-debug.log*
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+contract-manager-service/
+ext/
+artifacts/
+cache/
+
