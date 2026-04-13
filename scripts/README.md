@@ -2,6 +2,10 @@
 
 This folder contains scripts to interact with the deployed `PrivateAdder` contract on the COTI Sepolia network.
 
+## Deployed Contract Addresses
+* **EVM Network (Sepolia):** `0x2aA07A3A4FCDdb8D64febF61e7cfDEF79Fa0b6f9`
+* **COTI Network (Testnet):** `0xC76aaE4F3810fBBd5d96b92DEFeBE0034405Ad9c`
+
 ## 1. Submitting a Transaction
 
 The `interact.ts` script handles the full flow of encrypting inputs, estimating fees, submitting the transaction, and executing the asynchronous PoD operation. 
@@ -49,6 +53,10 @@ This will:
 # COTI PoD StringMatcher Scripts
 
 This folder contains scripts to interact with the deployed `StringMatcher` contracts on the COTI Sepolia network.
+
+## Deployed Contract Addresses
+* **EVM Network (Sepolia):** `0xd7656ACACE5Ab0081f453047DA514283928db544`
+* **COTI Network (Testnet):** `0x68DC00290280Abbd367275FBAf69898549F3A02f`
 
 ## 1. Submitting a Transaction
 
