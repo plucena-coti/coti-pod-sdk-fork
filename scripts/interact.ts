@@ -29,7 +29,6 @@ async function main() {
   const encA = await CotiPodCrypto.encrypt("10", "testnet", DataType.Uint64);
   const encB = await CotiPodCrypto.encrypt("20", "testnet", DataType.Uint64);
 
-  // 2. Budget fees (Using safer higher values based on our Inbox Oracle simulation)
   const callbackFeeWei = ethers.parseEther("0.008");
   const totalWei       = ethers.parseEther("0.015");
 
@@ -44,50 +43,42 @@ async function main() {
   console.log("Tx Hash:", tx.hash);
   const receipt = await tx.wait();
 
-  // 3. Extract the RequestId
-  const requestId = receipt?.logs
-    .map((log: any) => {
+  let requestId = null;
+  for (const log of receipt.logs) {
       try {
-        return privateAdder.interface.parseLog(log)?.args.requestId;
-      } catch {
-        return null;
-      }
-    })
-    .find(Boolean);
-
-  console.log("Found RequestId:", requestId);
+          const parsed = privateAdder.interface.parseLog(log as any);
+          if (parsed && parsed.name === "AddRequested") {
+              requestId = parsed.args.requestId;
+              break;
+          }
+      } catch (e) {}
+  }
   
-  if (!requestId) return;
-
-  // 4. Poll wait for the asynchronous callback to finish
+  console.log("Found RequestId:", requestId);
   console.log("3. Waiting for asynchronous execution (polling RequestStatus)...");
-  while (true) {
-    // Check status map: 0=None, 1=Pending, 2=Completed
+  
+  for (let i = 0; i < 20; i++) {
     const status = await privateAdder.statusByRequest(requestId);
     if (status === 2n /* Completed */) {
-        console.log("PoD Operation completed!");
-        break;
+      const encryptedSum = await privateAdder.sumByRequest(requestId);
+      console.log(`\n✅ Execution Completed!`);
+      const sumHex = "0x" + encryptedSum.toString(16);
+      console.log(`Encrypted Sum: ${sumHex}`);
+      
+      console.log("\n4. Decrypting Result:");
+      try {
+        const decryptedSum = CotiPodCrypto.decrypt(sumHex, accountAesKey, DataType.Uint64);
+        console.log(`Plaintext Sum: ${decryptedSum}`);
+      } catch (err: any) {
+        console.error("Decryption failed. This happens if the accountAesKey above doesn't match the one that signed the payloads.", err.message);
+      }
+      return;
     }
-    console.log("Status pending... waiting 5 seconds");
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    
+    process.stdout.write("Status pending... waiting 5 seconds\r");
+    await new Promise((r) => setTimeout(r, 5000));
   }
-
-  // 5. Read the ciphertext sum
-  const ct = await privateAdder.sumByRequest(requestId);
-  const ctHex = typeof ct === "bigint" ? "0x" + ct.toString(16) : String(ct);
-
-  console.log("4. Encrypted result length:", ctHex.length);
-
-  // 6. Decrypt the result
-  try {
-     const decryptedString = CotiPodCrypto.decrypt(ctHex, accountAesKey, DataType.Uint64);
-     console.log("5. Decrypted sum:", decryptedString); 
-  } catch (error) {
-     console.error("Decryption failed. (Ensure you have a real valid user accountAesKey).", error.message);
-  }
+  console.log("\nTimeout waiting for relayer completion. Check status manually later.");
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main().catch(console.error);
