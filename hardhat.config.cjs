@@ -5,7 +5,7 @@ require("dotenv").config();
 const config = {
   solidity: "0.8.26",
   paths: {
-    sources: "./contracts/examples"
+    sources: "./contracts"
   },
   networks: {
     sepolia: {
