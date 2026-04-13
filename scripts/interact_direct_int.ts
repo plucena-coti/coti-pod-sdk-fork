@@ -19,28 +19,22 @@ async function main() {
 
   console.log("1. Encrypting uint64 message...");
   
-  const mySecretInt = BigInt(42);
-  const encryptedPayload = await CotiPodCrypto.encrypt(mySecretInt, "testnet", DataType.Uint64) as any;
+  const mySecretIntString = "42";
+  const encryptedPayload = await CotiPodCrypto.encrypt(mySecretIntString, "testnet", DataType.Uint64) as any;
   
   let formattedCiphertext = encryptedPayload.ciphertext.value || encryptedPayload.ciphertext;
-  if (!Array.isArray(formattedCiphertext)) {
-      formattedCiphertext = [formattedCiphertext];
+  let ct = Array.isArray(formattedCiphertext) ? formattedCiphertext[0] : formattedCiphertext;
+  ct = typeof ct === "string" && !ct.startsWith("0x") ? "0x" + ct : ct;
+
+  let sig = encryptedPayload.signature;
+  if (Array.isArray(sig)) {
+      sig = sig[0];
   }
-  
-  let formattedSignature = encryptedPayload.signature;
-  if (!Array.isArray(formattedSignature)) {
-      formattedSignature = [formattedSignature];
-  }
-  formattedSignature = formattedSignature.map((sig: string) => sig.startsWith("0x") ? sig : "0x" + sig);
+  sig = typeof sig === "string" && !sig.startsWith("0x") ? "0x" + sig : sig;
 
   const itUint64Args = {
-      ciphertext: {
-          value: formattedCiphertext.map((c: any) => {
-              if (typeof c === "bigint") return c;
-              return typeof c === "string" && !c.startsWith("0x") ? "0x" + c : c;
-          })
-      },
-      signature: formattedSignature,
+      ciphertext: ct,
+      signature: sig,
   };
 
   const callbackFeeWei = ethers.parseEther("0.02"); 
