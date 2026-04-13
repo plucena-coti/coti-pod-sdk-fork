@@ -18,7 +18,7 @@ const config: HardhatUserConfig = {
     }
   },
   paths: {
-    sources: "./contracts/examples"
+    sources: "./contracts/privateMessage"
   },
   networks: {
     cotiTestnet: {
