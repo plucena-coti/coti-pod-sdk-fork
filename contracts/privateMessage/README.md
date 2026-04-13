@@ -3,8 +3,8 @@
 This folder contains scripts to interact with the deployed `PrivateAdder` contract on the COTI Sepolia network.
 
 ## Deployed Contract Addresses
-* **EVM Network (Sepolia):** `0x2aA07A3A4FCDdb8D64febF61e7cfDEF79Fa0b6f9` ([PrivateAdder.sol](../contracts/examples/PrivateAdder.sol))
-* **COTI Network (Testnet):** `0xC76aaE4F3810fBBd5d96b92DEFeBE0034405Ad9c` ([MpcAdder.sol](../contracts/examples/MpcAdder.sol))
+* **EVM Network (Sepolia):** `0x2aA07A3A4FCDdb8D64febF61e7cfDEF79Fa0b6f9` ([PrivateAdder.sol](../examples/PrivateAdder.sol))
+* **COTI Network (Testnet):** `0xC76aaE4F3810fBBd5d96b92DEFeBE0034405Ad9c` ([MpcAdder.sol](../examples/MpcAdder.sol))
 
 ## 1. Submitting a Transaction
 
@@ -55,8 +55,8 @@ This will:
 This folder contains scripts to interact with the deployed `StringMatcher` contracts on the COTI Sepolia network.
 
 ## Deployed Contract Addresses
-* **EVM Network (Sepolia):** `0xd7656ACACE5Ab0081f453047DA514283928db544` ([StringMatcherEvm.sol](../contracts/privateMessage/StringMatcherEvm.sol))
-* **COTI Network (Testnet):** `0x68DC00290280Abbd367275FBAf69898549F3A02f` ([StringMatcherPod.sol](../contracts/privateMessage/StringMatcherPod.sol))
+* **EVM Network (Sepolia):** `0xd7656ACACE5Ab0081f453047DA514283928db544` ([StringMatcherEvm.sol](./StringMatcherEvm.sol))
+* **COTI Network (Testnet):** `0x68DC00290280Abbd367275FBAf69898549F3A02f` ([StringMatcherPod.sol](./StringMatcherPod.sol))
 
 ## 1. Submitting a Transaction
 
@@ -104,8 +104,8 @@ This will:
 This folder contains scripts to interact with the deployed `DirectIntMessage` contracts on the COTI Sepolia network.
 
 ## Deployed Contract Addresses
-* **EVM Network (Sepolia):** `0x57cfE5220Ce6219c5Fa6ffE72D8c1De26454e64d` ([DirectIntMessageEvm.sol](../contracts/privateMessage/DirectIntMessageEvm.sol))
-* **COTI Network (Testnet):** `0xD65e349AE5A460419C44a6334D803D5316464bCA` ([DirectIntMessagePod.sol](../contracts/privateMessage/DirectIntMessagePod.sol))
+* **EVM Network (Sepolia):** `0x57cfE5220Ce6219c5Fa6ffE72D8c1De26454e64d` ([DirectIntMessageEvm.sol](./DirectIntMessageEvm.sol))
+* **COTI Network (Testnet):** `0xD65e349AE5A460419C44a6334D803D5316464bCA` ([DirectIntMessagePod.sol](./DirectIntMessagePod.sol))
 
 ## 1. Submitting a Transaction
 
