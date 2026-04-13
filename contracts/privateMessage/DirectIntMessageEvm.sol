@@ -15,8 +15,7 @@ interface IDirectIntMessagePod {
 contract DirectIntMessageEvm is PodLib, PodUserSepolia {
     using MpcAbiCodec for MpcAbiCodec.MpcMethodCallContext;
 
-    enum RequestStatus { None, Pending, Completed }
-    mapping(bytes32 => RequestStatus) public statusByRequest;
+    mapping(bytes32 => uint8) public statusByRequest; // 0 = None, 1 = Pending, 2 = Completed, 3 = Error
     mapping(bytes32 => string) public statusMsgByRequest;
     mapping(bytes32 => address) public requestSenders;
 
@@ -37,10 +36,8 @@ contract DirectIntMessageEvm is PodLib, PodUserSepolia {
         ctx = MpcAbiCodec.addArgument(ctx, recipient);
         IInbox.MpcMethodCall memory methodCall = MpcAbiCodec.build(ctx);
 
-        uint256 totalValueWei = msg.value;
-
         bytes32 requestId = _sendTwoWayWithFee(
-            totalValueWei,
+            msg.value,
             callbackFeeLocalWei,
             cotiChainId,
             mpcExecutorAddress,
@@ -49,7 +46,7 @@ contract DirectIntMessageEvm is PodLib, PodUserSepolia {
             this.onDefaultMpcError.selector
         );
 
-        statusByRequest[requestId] = RequestStatus.Pending;
+        statusByRequest[requestId] = 1; // Pending
         requestSenders[requestId] = msg.sender;
         emit MessageDispatched(requestId, msg.sender, recipient);
 
@@ -63,7 +60,7 @@ contract DirectIntMessageEvm is PodLib, PodUserSepolia {
         }
         (bytes32 originalId, string memory statusMsg) = abi.decode(resultData, (bytes32, string));
         
-        statusByRequest[originalId] = RequestStatus.Completed;
+        statusByRequest[originalId] = 2; // Completed
         statusMsgByRequest[originalId] = statusMsg;
         
         emit MessageReply(requestId, originalId, statusMsg);
