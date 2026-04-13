@@ -1,12 +1,13 @@
-import { ethers } from "hardhat";
-import * as fs from "fs";
+import hre from "hardhat";
+import { ethers } from "ethers";
 
 async function main() {
     console.log("1. Deploying DirectIntMessagePod to COTI Testnet...");
     const cotiProvider = new ethers.JsonRpcProvider("https://testnet.coti.io/rpc");
     const cotiWallet = new ethers.Wallet(process.env.PRIVATE_KEY!, cotiProvider);
 
-    const podFactory = await ethers.getContractFactory("DirectIntMessagePod", cotiWallet);
+    const artifactPod = await hre.artifacts.readArtifact("DirectIntMessagePod");
+    const podFactory = new ethers.ContractFactory(artifactPod.abi, artifactPod.bytecode, cotiWallet);
     
     // The true Inbox on COTI Testnet
     const COTI_INBOX = "0x0f9a5cd00450db1217839c35d23d56f96d6331ae"; 
@@ -21,7 +22,8 @@ async function main() {
     const sepoliaProvider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL!);
     const sepoliaWallet = new ethers.Wallet(process.env.PRIVATE_KEY!, sepoliaProvider);
 
-    const evmFactory = await ethers.getContractFactory("DirectIntMessageEvm", sepoliaWallet);
+    const artifactEvm = await hre.artifacts.readArtifact("DirectIntMessageEvm");
+    const evmFactory = new ethers.ContractFactory(artifactEvm.abi, artifactEvm.bytecode, sepoliaWallet);
     const evmContract = await evmFactory.deploy();
     await evmContract.waitForDeployment();
     const evmAddress = await evmContract.getAddress();
