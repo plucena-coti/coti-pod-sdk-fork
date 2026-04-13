@@ -136,3 +136,43 @@ export DIRECT_INT_EVM=0x57cfE5220Ce6219c5Fa6ffE72D8c1De26454e64d
 export TX_HASH=0xYourTransactionHash
 npx hardhat run scripts/poll_direct_int.ts --network sepolia
 ```
+
+
+
+# COTI PoD DirectMessage Scripts
+
+This folder contains scripts to interact with the deployed `DirectMessage` contracts on the COTI Sepolia network.
+
+## Deployed Contract Addresses
+* **EVM Network (Sepolia):** `0x65B9B66d4ECD65679180e622CD1c2954EfAfAE22` ([DirectMessageEvm.sol](./DirectMessageEvm.sol))
+* **COTI Network (Testnet):** `0x83fD833353e574cA93fFB0eEeE37ebDaFd25ea0A` ([DirectMessagePod.sol](./DirectMessagePod.sol))
+
+## 1. Submitting a Transaction
+
+The `interact_direct.ts` script handles the full flow of encrypting inputs (a string message), estimating fees, submitting the transaction, and executing the asynchronous PoD operation. 
+It will automatically poll the network waiting for the off-chain MPC nodes to complete the calculation and trigger the callback.
+
+```bash
+export DIRECT_EVM=0x65B9B66d4ECD65679180e622CD1c2954EfAfAE22
+npx hardhat run scripts/interact_direct.ts --network sepolia
+```
+
+## 2. Calculating Fees dynamically
+
+If your transaction remains stuck in the `Pending (1)` state for a long time, it might be due to undershooting the required callback fees. You can use the `fee.ts` script to query the COTI Sepolia `Inbox` oracle for precise, real-time fee estimates based on current network gas prices.
+
+```bash
+npx hardhat run scripts/fee.ts --network sepolia
+```
+
+## 3. Reading Transaction Results
+
+If you stop the `interact_direct.ts` script while it is polling, or if you simply want to check the status of an older transaction, you can use the `poll_direct.ts` script to query its off-chain progression natively.
+
+Pass the transaction hash via the `TX_HASH` environment variable:
+
+```bash
+export DIRECT_EVM=0x65B9B66d4ECD65679180e622CD1c2954EfAfAE22
+export TX_HASH=0xYourTransactionHash
+npx hardhat run scripts/poll_direct.ts --network sepolia
+```
