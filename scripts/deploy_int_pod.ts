@@ -12,7 +12,7 @@ async function main() {
   const artifact = await hre.artifacts.readArtifact("DirectIntMessagePod");
   const factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, deployer);
 
-  const MPC_EXECUTOR = "0xC76aaE4F3810fBBd5d96b92DEFeBE0034405Ad9c"; // Inbox equivalent for COTI
+  const MPC_EXECUTOR = "0x0F9A5cD00450db1217839C35d23D56F96d6331ae"; // Inbox equivalent for COTI
   const contract = await factory.deploy(MPC_EXECUTOR, { nonce: nonce });
   await contract.waitForDeployment();
   const address = await contract.getAddress();

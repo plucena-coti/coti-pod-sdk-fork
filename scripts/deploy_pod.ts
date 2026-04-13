@@ -22,7 +22,7 @@ async function main() {
   const DirectMessagePod = new ethers.ContractFactory(artifact.abi, artifact.bytecode, deployer);
 
   // The MPC_EXECUTOR_ADDRESS acts as the "Inbox" relayer on the COTI side!
-  const MPC_EXECUTOR = "0xC76aaE4F3810fBBd5d96b92DEFeBE0034405Ad9c";
+  const MPC_EXECUTOR = "0x0F9A5cD00450db1217839C35d23D56F96d6331ae";
   console.log(`Using MPC_EXECUTOR as Inbox: ${MPC_EXECUTOR}`);
 
   const directMessagePod = await DirectMessagePod.deploy(MPC_EXECUTOR);

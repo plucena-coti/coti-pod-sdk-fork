@@ -16,7 +16,7 @@ async function main() {
   
   const factoryPod = new ethers.ContractFactory(podArtifact.abi, podArtifact.bytecode, walletCoti);
   console.log("Deploying Pod to COTI...");
-  const pod = await factoryPod.deploy("0xC76aaE4F3810fBBd5d96b92DEFeBE0034405Ad9c", { nonce: nonceCoti });
+  const pod = await factoryPod.deploy("0x0F9A5cD00450db1217839C35d23D56F96d6331ae", { nonce: nonceCoti });
   console.log(`Pod tx hash: ${pod.deploymentTransaction()?.hash}`);
   await pod.waitForDeployment();
   console.log(`✅ DirectIntMessagePod deployed to COTI @ ${await pod.getAddress()}`);

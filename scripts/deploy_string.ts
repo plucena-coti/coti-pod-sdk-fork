@@ -11,7 +11,7 @@ async function main() {
     console.log("1. Deploying StringMatcherPod to COTI Testnet...");
     const podArtifact = JSON.parse(fs.readFileSync("artifacts/contracts/examples/StringMatcherPod.sol/StringMatcherPod.json", "utf8"));
     const podFactory = new ethers.ContractFactory(podArtifact.abi, podArtifact.bytecode, cotiWallet);
-    const MPC_EXECUTOR = "0xC76aaE4F3810fBBd5d96b92DEFeBE0034405Ad9c"; // Inbox Relayer on COTI
+    const MPC_EXECUTOR = "0x0F9A5cD00450db1217839C35d23D56F96d6331ae"; // Inbox Relayer on COTI
     const podContract = await podFactory.deploy(MPC_EXECUTOR, { gasLimit: 5000000 });
     await podContract.waitForDeployment();
     const podAddress = await podContract.getAddress();

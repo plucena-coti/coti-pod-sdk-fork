@@ -20,19 +20,24 @@ async function main() {
   
   // The SDK returned an array of signatures, but `itString` struct signature is `bytes`.
   // So we concat the signatures if there are multiple parts.
-  const formattedCiphertext = encryptedPayload.ciphertext.value || encryptedPayload.ciphertext;
+  let formattedCiphertext = encryptedPayload.ciphertext.value || encryptedPayload.ciphertext;
+  if (!Array.isArray(formattedCiphertext)) {
+      formattedCiphertext = [formattedCiphertext];
+  }
   
   let formattedSignature = encryptedPayload.signature;
-  if (Array.isArray(formattedSignature)) {
-      // In COTI strings, each 32 bytes block has its own signature for `buildStringInputText`, 
-      // but if our contract expects `itString` we need to pass a single byte array representing all signatures bundled
-      formattedSignature = '0x' + formattedSignature.map(sig => sig.replace('0x', '')).join('');
-  } else if (typeof formattedSignature === 'string') {
-      formattedSignature = formattedSignature.startsWith("0x") ? formattedSignature : "0x" + formattedSignature;
+  if (!Array.isArray(formattedSignature)) {
+      formattedSignature = [formattedSignature];
   }
+  formattedSignature = formattedSignature.map((sig: string) => sig.startsWith("0x") ? sig : "0x" + sig);
 
   const itStringArgs = {
-      ciphertext: formattedCiphertext.map((c: any) => typeof c === "string" && !c.startsWith("0x") ? "0x" + c : c),
+      ciphertext: {
+          value: formattedCiphertext.map((c: any) => {
+              if (typeof c === "bigint") return c;
+              return typeof c === "string" && !c.startsWith("0x") ? "0x" + c : c;
+          })
+      },
       signature: formattedSignature,
   };
 
