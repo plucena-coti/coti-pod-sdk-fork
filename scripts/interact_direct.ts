@@ -50,7 +50,7 @@ async function main() {
   try {
       const tx = await directMessage.sendMessage(
         itStringArgs,
-        wallet.address, // recipient
+        "0xa8d10a99d3b7AC2373EdF144D4a8a99BFf9c00F4", // recipient
         callbackFeeWei,
         { value: totalWei, gasLimit: 5000000 }
       );
